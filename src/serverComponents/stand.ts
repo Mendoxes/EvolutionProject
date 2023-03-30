@@ -7,7 +7,7 @@ export const stand = async (req: express.Request, res: express.Response) =>
 
     const gameState = req.body;
     console.log(gameState)
-    const { deck, dealerHand, dealerScore } = gameState;
+    const { deck } = gameState;
     if (deck.length === 0)
     {
         res.status(400).json({ message: 'Deck is empty' });
@@ -16,7 +16,7 @@ export const stand = async (req: express.Request, res: express.Response) =>
 
     if (gameState.dealerScore < 17 && gameState.gameOver === false)
     {
-        // dealerHand.push(dealCards(deck, 1));
+
         gameState.dealerHand.push(deck.pop()!);
         gameState.dealerScore = calculateHandScore(gameState.dealerHand);
         console.log(calculateHandScore(gameState.dealerHand));
@@ -36,7 +36,7 @@ export const stand = async (req: express.Request, res: express.Response) =>
         gameState.winner = "dealer";
     }
 
-    if (gameState.dealerScore <= 21 && gameState.dealerScore > gameState.playerScore)
+    if (gameState.dealerScore <= 21 && gameState.dealerScore >= gameState.playerScore)
     {
         gameState.gameOver = true;
         gameState.winner = "dealer";

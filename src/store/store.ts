@@ -10,6 +10,7 @@ export class GameStore
 {
 
   private _gameState: GameState | null = null;
+  private _tokensChangeOnWinOrLoss = 0;
 
   constructor()
   {
@@ -17,7 +18,19 @@ export class GameStore
       gameState: computed,
       setGameState: action,
       createNewGame: action,
+      setTokensChangeOnWinOrLoss: action,
+      tokensChangeOnWinOrLoss: computed,
     });
+  }
+
+  get tokensChangeOnWinOrLoss(): number
+  {
+    return this._tokensChangeOnWinOrLoss;
+  }
+
+  setTokensChangeOnWinOrLoss: (tokens: number) => unknown = (tokens: number) =>
+  {
+    this._tokensChangeOnWinOrLoss = tokens;
   }
 
   get gameState(): GameState | null
@@ -35,7 +48,7 @@ export class GameStore
   {
     try
     {
-      const response = await axios.post(`${URL_BASE}/game`);
+      const response = await axios.post(`${URL_BASE}/game`, this.gameState);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
       this.setGameState(gameState)
@@ -50,9 +63,23 @@ export class GameStore
     try
     {
 
+
       const response = await axios.post(`${URL_BASE}/hit`, this.gameState);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
+
+      if (gameState.gameOver && gameState.winner === 'dealer')
+      {
+
+        gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
+        this.setTokensChangeOnWinOrLoss(0)
+
+      } else if (gameState.gameOver && gameState.winner === 'player')
+      {
+
+        gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
+        this.setTokensChangeOnWinOrLoss(0)
+      }
       this.setGameState(gameState)
     } catch (error)
     {
@@ -68,6 +95,19 @@ export class GameStore
       const response = await axios.post(`${URL_BASE}/stand`, this.gameState);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
+
+      if (gameState.gameOver && gameState.winner === 'dealer')
+      {
+
+        gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
+        this.setTokensChangeOnWinOrLoss(0)
+
+      } else if (gameState.gameOver && gameState.winner === 'player')
+      {
+
+        gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
+        this.setTokensChangeOnWinOrLoss(0)
+      }
       this.setGameState(gameState);
     } catch (error)
     {

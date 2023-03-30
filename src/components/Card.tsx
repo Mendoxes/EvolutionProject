@@ -6,6 +6,7 @@ import { Rank, Card } from '../types';
 //awfull way to import all the cards, but it works for now
 import SingleCard from './SingleCard';
 import { CBB } from '../svg'
+import Canvas from './canvas';
 
 
 
@@ -17,9 +18,13 @@ export default function CardF(): JSX.Element
 
   const counterStore: GameStore = useContext(CounterContext);
 
+  console.log(counterStore)
+
   const Counter: (() => JSX.Element) = observer(() =>
   {
 
+
+    console.log(counterStore)
     async function createNewGame(): Promise<void>
     {
       await counterStore.createNewGame();
@@ -32,8 +37,6 @@ export default function CardF(): JSX.Element
     async function hit(): Promise<void>
     {
       await counterStore.hit();
-      // await counterStore.stand();
-
     }
 
 
@@ -41,6 +44,12 @@ export default function CardF(): JSX.Element
     {
       setState(true);
       await counterStore.stand();
+
+    }
+
+    async function addChips(x: number): Promise<void>
+    {
+      await counterStore.setTokensChangeOnWinOrLoss(counterStore.tokensChangeOnWinOrLoss + x);
 
     }
 
@@ -76,15 +85,29 @@ export default function CardF(): JSX.Element
 
 
             <div>{toJS(counterStore.gameState.playerScore)}</div>
+            <div>DECK LENGTH: {toJS(counterStore.gameState.deck.length)}</div>
+            <div>Tokens: {toJS(counterStore.gameState.tokens)}</div>
 
 
           </div>
         )}
 
-        <div><button onClick={createNewGame}>Create new Game</button></div>
 
-        <div><button onClick={hit}>HIT IT</button></div>
-        <div><button onClick={stand}>Stand</button></div>
+        {counterStore.tokensChangeOnWinOrLoss && <>    <div> <button onClick={createNewGame}>Create new Game</button></div>
+
+          <div><button disabled={counterStore.gameState?.gameOver} onClick={hit}>HIT IT</button></div>
+          <div><button disabled={counterStore.gameState?.gameOver} onClick={stand}>Stand</button></div></>}
+
+
+
+        <div>
+
+          <div>TOKENS ON THE BET: {counterStore.tokensChangeOnWinOrLoss}</div>
+
+          {Array.from({ length: 5 }).map((_, index) => (<button onClick={() => addChips((index + 5) * 5)}> Add ${(index + 5) * 5} chips</button>))}
+        </div>
+
+        <Canvas></Canvas>
 
       </div>
     );

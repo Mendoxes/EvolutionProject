@@ -52,5 +52,6 @@ export type GameState = {
   playerScore: number;
   dealerScore: number;
   gameOver: boolean;
+  tokens: number;
   winner?: "player" | "dealer" | "tie";
 };

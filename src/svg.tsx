@@ -1,6 +1,8 @@
 import * as React from "react"
 import { SVGProps } from "react"
 
+const cardSize = "1";
+
 export const C2C = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -10,6 +12,7 @@ export const C2C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -70,6 +73,7 @@ export const C2D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6257.43 2747.31)"
@@ -130,6 +134,7 @@ export const C2H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -198,6 +203,7 @@ export const C2S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -257,6 +263,7 @@ export const C3C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -326,6 +333,7 @@ export const C3D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6480.66 2747.31)"
@@ -386,6 +394,7 @@ export const C3H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -440,6 +449,7 @@ export const C3S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -499,6 +509,7 @@ export const C4C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -549,7 +560,7 @@ export const C4C = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C4D  = (props: SVGProps<SVGSVGElement>) => (
+export const C4D = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     height={312.808}
@@ -558,6 +569,7 @@ export const C4D  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6703.887 2747.31)"
@@ -617,6 +629,7 @@ export const C4H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -671,6 +684,7 @@ export const C4S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -731,6 +745,7 @@ export const C5C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -790,6 +805,7 @@ export const C5D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6927.116 2747.31)"
@@ -849,6 +865,7 @@ export const C5H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -900,12 +917,14 @@ export const C5S = (props: SVGProps<SVGSVGElement>) => (
     width={224.225}
     height={312.808}
     style={{
+      scale: cardSize,
       display: "inline",
     }}
     {...props}
   >
     <g
       style={{
+
         display: "inline",
       }}
     >
@@ -965,6 +984,7 @@ export const C6C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1024,6 +1044,7 @@ export const C6D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-7150.344 2747.31)"
@@ -1092,6 +1113,7 @@ export const C6H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1146,6 +1168,7 @@ export const C6S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1205,6 +1228,7 @@ export const C7C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1255,7 +1279,7 @@ export const C7C = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C7D  = (props: SVGProps<SVGSVGElement>) => (
+export const C7D = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.218}
@@ -1264,6 +1288,7 @@ export const C7D  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6034.206 2435.495)"
@@ -1323,6 +1348,7 @@ export const C7H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1368,7 +1394,7 @@ export const C7H = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C7S  = (props: SVGProps<SVGSVGElement>) => (
+export const C7S = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.218}
@@ -1377,6 +1403,7 @@ export const C7S  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1427,7 +1454,7 @@ export const C7S  = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C8C  = (props: SVGProps<SVGSVGElement>) => (
+export const C8C = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
@@ -1436,6 +1463,7 @@ export const C8C  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1495,7 +1523,7 @@ export const C8C  = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C8D  = (props: SVGProps<SVGSVGElement>) => (
+export const C8D = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
@@ -1504,6 +1532,7 @@ export const C8D  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6257.43 2435.498)"
@@ -1554,7 +1583,7 @@ export const C8D  = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const C8H  = (props: SVGProps<SVGSVGElement>) => (
+export const C8H = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
@@ -1563,6 +1592,7 @@ export const C8H  = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1617,6 +1647,7 @@ export const C8S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1677,6 +1708,7 @@ export const C9C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1736,6 +1768,7 @@ export const C9D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6480.66 2435.498)"
@@ -1795,6 +1828,7 @@ export const C9H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1849,6 +1883,7 @@ export const C9S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1908,6 +1943,7 @@ export const C10C = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -1996,6 +2032,7 @@ export const C10D = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6703.887 2435.498)"
@@ -2091,6 +2128,7 @@ export const C10H = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2181,6 +2219,7 @@ export const C10S = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2277,6 +2316,7 @@ export const CAC = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2336,6 +2376,7 @@ export const CAD = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
       transform="translate(-6034.202 2747.31)"
@@ -2395,6 +2436,7 @@ export const CAH = (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2442,16 +2484,20 @@ export const CAH = (props: SVGProps<SVGSVGElement>) => (
 
 export const CAS = (props: SVGProps<SVGSVGElement>) => (
   <svg
+
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
     height={312.808}
     style={{
+
+      scale: cardSize,
       display: "inline",
     }}
     {...props}
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2505,10 +2551,16 @@ export const CAS = (props: SVGProps<SVGSVGElement>) => (
 
 export const CBB = (props: SVGProps<SVGSVGElement>) => (
   <svg
+
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
     width={223.228}
     height={311.811}
+    style={{
+
+      scale: cardSize,
+      display: "inline",
+    }}
     {...props}
   >
     <defs>
@@ -2706,6 +2758,7 @@ export const CJC = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2847,6 +2900,7 @@ export const CJD = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -2927,6 +2981,7 @@ export const CJH = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3001,6 +3056,7 @@ export const CJS = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3080,6 +3136,7 @@ export const CKC = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3159,6 +3216,7 @@ export const CKD = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3239,6 +3297,7 @@ export const CKH = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3311,6 +3370,11 @@ export const CKS2 = (props: SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
     height={312.808}
+    style={{
+
+      scale: cardSize,
+      display: "inline",
+    }}
     {...props}
   >
     <title>{"Vectorized Playing Cards 1.0"}</title>
@@ -3385,11 +3449,13 @@ export const CQC = (props: SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
     height={312.808}
+
     {...props}
   >
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3459,7 +3525,7 @@ export const CQC = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const CQD= (props: SVGProps<SVGSVGElement>) => (
+export const CQD = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
@@ -3468,6 +3534,7 @@ export const CQD= (props: SVGProps<SVGSVGElement>) => (
   >
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3541,7 +3608,7 @@ export const CQD= (props: SVGProps<SVGSVGElement>) => (
 )
 
 
-export const CQH= (props: SVGProps<SVGSVGElement>) => (
+export const CQH = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={224.225}
@@ -3551,6 +3618,7 @@ export const CQH= (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3624,6 +3692,7 @@ export const CQS = (props: SVGProps<SVGSVGElement>) => (
     <title>{"Vectorized Playing Cards 1.0"}</title>
     <g
       style={{
+        scale: cardSize,
         display: "inline",
       }}
     >
@@ -3695,7 +3764,7 @@ export const CQS = (props: SVGProps<SVGSVGElement>) => (
 
 
 
-export const  CKS= (props: SVGProps<SVGSVGElement>) => (
+export const CKS = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
