@@ -15,7 +15,7 @@ app.use(express.json());
 
 app.use('/api', apiRouter);
 
-const PORT = 5000;
+const PORT = 8088;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
