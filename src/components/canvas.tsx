@@ -1,116 +1,151 @@
-import React, { useRef, useEffect, useContext } from 'react';
-import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Texture, ActionManager, ExecuteCodeAction, Mesh } from "babylonjs";
+import React, { useRef, useEffect, useContext, useState } from 'react';
+import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Texture, ActionManager, ExecuteCodeAction, Mesh, DynamicTexture, FollowCamera, SceneLoader, Space, CubeTexture, PointLight, DirectionalLight, SpotLight, Animation } from "@babylonjs/core"
+// import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
+import "@babylonjs/loaders";
+import { AbstractMesh } from "babylonjs"
 import * as GUI from "babylonjs-gui";
 import { cards } from '../assets/pngCards';
 import CounterContext, { GameStore } from '../store/store';
-import { toJS } from 'mobx';
-import { getSuitFromValue } from '../utilities';
-import { Card, Rank } from '../types';
-import { getCards } from './canvasUtils/canvasUtils';
+import '../App.css'
+import { createNewGame, getChipsFromTokens, hit, stand } from '../utilities/canvas';
+
+
+let originalMesh: any = null;
+let clonedMeshes: any = [];
 
 export default function Canvas() 
 {
-
     const canvasRef = useRef(null);
     const counterStore: GameStore = useContext(CounterContext);
+    const [sceneState, setScene] = useState<Scene | null>(null);
+    const [gameOver, setGameOVer] = useState(false);
 
-
-    async function createNewGame(scene: any): Promise<void>
+    useEffect(() =>
     {
-        await counterStore.createNewGame();
-        if (counterStore.gameState != null)
+        if (counterStore.gameState?.gameOver)
         {
-            getCards(counterStore, scene, cards, "dealerHand")
-            getCards(counterStore, scene, cards, "playerHand")
+            setGameOVer(false);
+
+
+        }
+    }, [counterStore.gameState?.gameOver])
+
+
+    const originalMeshRef = useRef(originalMesh);
+    const clonedMeshesRef = useRef(clonedMeshes);
+
+
+
+    function addClone(distanceBetweenClones: any)
+    {
+        console.log("click");
+        console.log(clonedMeshesRef.current);
+        if (originalMeshRef.current)
+        {
+            const clone = originalMeshRef.current.clone(
+                `clone_${clonedMeshesRef.current.length}`,
+                null,
+                true
+            );
+            clone.position.y += clonedMeshesRef.current.length * distanceBetweenClones;
+            clonedMeshesRef.current.push(clone);
+        }
+
+
+    }
+
+    function removeClone()
+    {
+        if (clonedMeshesRef.current.length > 1)
+        {
+            console.log(clonedMeshesRef.current.length);
+            const meshToRemove = clonedMeshesRef.current.pop();
+            meshToRemove.dispose();
         }
     }
 
 
-    async function hit(scene: Scene): Promise<void>
-    {
-        await counterStore.hit();
-        getCards(counterStore, scene, cards, "dealerHand")
-        getCards(counterStore, scene, cards, "playerHand")
-    }
+    // function getChips(tokens: number | undefined)
+    // {
+
+    //     if (!tokens) return;
+    //     const chips = getChipsFromTokens(tokens);
+    //     for (let i = 0; i < chips; i++)
+    //     {
+    //         setTimeout(() => { addClone(0.1) }, 100 * i);
+
+    //     }
+
+    // }
+
 
     useEffect(() =>
     {
         console.log(counterStore)
         if (canvasRef.current)
         {
-            const engine = new Engine(canvasRef.current, true);
+            const engine = new Engine(canvasRef.current);
             const scene: Scene = new Scene(engine);
-            // create your Babylon.js scene here
-
-            // add a camera to the scene
-            const camera = new FreeCamera("camera", new Vector3(0, 5, -10), scene);
-            camera.setTarget(Vector3.Zero());
-            camera.attachControl(canvasRef.current, true);
+            setScene(scene);
             new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+            const camera = new FreeCamera("camera", new Vector3(0, 7, -18), scene);
+            // camera.radius = 20; // distance from the target
+            // camera.heightOffset = 500; // height above the target
+            camera.setTarget(Vector3.Zero());
+            camera.attachControl(canvasRef.current);
 
 
-            const table: Mesh = MeshBuilder.CreateBox("table", { width: 16, height: 0.2, depth: 10 }, scene);
-            table.position.y = -0.1; // position slightly below ground level
-            const tableMaterial = new StandardMaterial("tableMat", scene);
-            tableMaterial.diffuseColor = new Color3(0.1, 0.5, 0.1); // set green color
-            table.material = tableMaterial;
-
-            //Creates card spot
-
-            const cardSpotBorder1 = MeshBuilder.CreateBox("cardSpotBorder1", { width: 1.25, height: 0.02, depth: 1.25 }, scene);
-            cardSpotBorder1.position.set(-1, 0.05, -3.5);
-            const cardSpotBorderMaterial1 = new StandardMaterial("cardSpotBorderMat1", scene);
-            cardSpotBorderMaterial1.diffuseColor = new Color3(1, 1, 0); // set yellow color
-            cardSpotBorder1.material = cardSpotBorderMaterial1;
-
-            const cardSpot1 = MeshBuilder.CreateBox("cardSpot1", { width: 1, height: 0.01, depth: 1 }, scene);
-            cardSpot1.position.set(-1, 0.07, -3.5);
-            const cardSpotMaterial = new StandardMaterial("cardSpotMat", scene);
-            cardSpotMaterial.diffuseColor = new Color3(0.1, 0.5, 0.1); // set green color
-
-            cardSpot1.material = cardSpotMaterial;
-
-
-            const buttonForStart = GUI.Button.CreateSimpleButton("button", "Show cards");
-            buttonForStart.top = "-10%";
-            buttonForStart.width = "150px";
-            buttonForStart.height = "40px";
-            buttonForStart.color = "white";
-            buttonForStart.background = "blue";
-            buttonForStart.onPointerUpObservable.add(function ()
+            SceneLoader.ImportMesh("", "./", "tabel7.glb", scene, (newMeshes) =>
             {
-                createNewGame(scene)
-                console.log("Button clicked!");
+                console.log("newMeshes", newMeshes)
+
+                newMeshes[0].position = new Vector3(0, -13, 9);
+                newMeshes[0].rotate(new Vector3(0, 1, 0), Math.PI, Space.WORLD);
+
             });
-            const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-            // add the button to the GUI
-            advancedTexture.addControl(buttonForStart);
 
-
-
-
-
-
-
-
-
-            const buttonForStart2 = GUI.Button.CreateSimpleButton("button", "Hit");
-            buttonForStart2.top = "-30%";
-            buttonForStart2.width = "150px";
-            buttonForStart2.height = "40px";
-            buttonForStart2.color = "white";
-            buttonForStart2.background = "blue";
-            buttonForStart2.onPointerUpObservable.add(function ()
+            scene.environmentTexture = new CubeTexture("environmentSpecular.env", scene);
+            if (clonedMeshesRef.current.length === 0)
             {
-                hit(scene)
-                console.log("Button clicked!");
-            });
-            const advancedTexture2 = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-            // add the button to the GUI
-            advancedTexture2.addControl(buttonForStart2);
+
+                SceneLoader.ImportMesh("", "./assets/", "ten.glb", scene, (newMeshes) =>
+                {
+                    console.log("newMeshes", newMeshes);
+                    newMeshes[1].scaling = new Vector3(0.4, 0.4, 0.4);
+                    newMeshes[1].position = new Vector3(0, -3.3, -0.4);
+                    originalMeshRef.current = newMeshes[1];
+                    const clone = originalMeshRef.current.clone(
+                        `clone_${clonedMeshesRef.current.length}`,
+                        null,
+                        true
+                    );
+                    clone.position.y += clonedMeshesRef.current.length * 2;
+                    clonedMeshesRef.current.push(clone);
+
+                })
+
+
+                // SceneLoader.ImportMesh("", "./assets/", "fifty.glb", scene, (newMeshes) =>
+                // {
+                //     console.log("newMeshes", newMeshes);
+                //     newMeshes[1].scaling = new Vector3(0.4, 0.4, 0.4);
+                //     newMeshes[1].position = new Vector3(0, -3.3, -0.4);
+                //     originalMeshRef.current = newMeshes[1];
+                //     const clone = originalMeshRef.current.clone(
+                //         `clone_${clonedMeshesRef.current.length}`,
+                //         null,
+                //         true
+                //     );
+                //     clone.position.y += clonedMeshesRef.current.length * 2;
+                //     clonedMeshesRef.current.push(clone);
+
+                // }
 
 
 
+                // );
+
+            }
 
 
             engine.runRenderLoop(() =>
@@ -137,7 +172,39 @@ export default function Canvas()
 
     }, []);
 
+
+
+
     return (
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+        <div style={{ position: 'relative' }}>
+            <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
+            <div className={`overlay ${gameOver ? 'fadeOut' : ''}`}>
+                <h1>Blackjack Game</h1>
+                {!gameOver && (
+                    <div className="start-button">
+                        <button onClick={() => createNewGame(sceneState, counterStore, setGameOVer)}>Start Game</button>
+                    </div>
+                )}
+                {gameOver && (
+                    <div className="game-buttons">
+                        <button onClick={() => hit(sceneState, counterStore)} className="hit-button">Hit</button>
+                        <button onClick={() => stand(sceneState, counterStore)} className="stand-button">Stand</button>
+                    </div>
+                )}
+                <div className="navbar">
+                    {/* <div onClick={() => getChips(counterStore.gameState?.tokens)} className="navbar-button">5</div> */}
+                    <div className="navbar-button"></div>
+                    <div className="navbar-button"></div>
+                    <div className="navbar-button"></div>
+                </div>
+                <div className="tokens">
+                    <p> Tokens: {counterStore.gameState?.tokens}</p>
+                    <button onClick={() => addClone(0.1)}>Add clone</button>
+                    <button onClick={removeClone}>remove clone</button>
+                </div>
+            </div>
+        </div>
+
+
     );
 }

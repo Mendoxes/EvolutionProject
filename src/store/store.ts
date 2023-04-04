@@ -46,6 +46,12 @@ export class GameStore
 
   async createNewGame(): Promise<void>
   {
+    // if (this.gameState !== null && this.gameState.gameOver === true)
+    // {
+    //   this.gameState!.dealerHand = [];
+    //   this.gameState!.playerHand = [];
+    // }
+
     try
     {
       const response = await axios.post(`${URL_BASE}/game`, this.gameState);
@@ -70,13 +76,15 @@ export class GameStore
 
       if (gameState.gameOver && gameState.winner === 'dealer')
       {
-
+        // gameState.dealerHand.length = 0;
+        // gameState.playerHand.length = 0;
         gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
         this.setTokensChangeOnWinOrLoss(0)
 
       } else if (gameState.gameOver && gameState.winner === 'player')
       {
-
+        // gameState.dealerHand.length = 0;
+        // gameState.playerHand.length = 0;
         gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
         this.setTokensChangeOnWinOrLoss(0)
       }

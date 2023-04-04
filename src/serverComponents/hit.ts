@@ -17,8 +17,9 @@ export const hit = async (req: express.Request, res: express.Response) =>
 
   if (gameState.playerScore < 21 && gameState.gameOver === false)
   {
-    playerHand.push(deck.pop()!);
+    playerHand.push(gameState.deck.pop()!);
     gameState.playerScore = calculateHandScore(gameState.playerHand);
+    console.log(gameState.deck.length)
 
     if (gameState.playerScore > 21)
     {
