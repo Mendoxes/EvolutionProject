@@ -1,4 +1,4 @@
-import { MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Animation, AnimationGroup, EasingFunction } from "babylonjs";
+import { MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Animation, AnimationGroup, EasingFunction, Material, Mesh } from "babylonjs";
 import { GameStore } from "../../store/store";
 import { Card, Rank } from "../../types";
 import { getSuitFromValue } from "../../utilities";
@@ -22,6 +22,11 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
         const suit = getSuitFromValue(newCard.suit);
         const cardMaterial = new StandardMaterial("cardMat", scene);
         cardMaterial.backFaceCulling = false;
+
+
+
+        // create a mesh and apply the material to it
+
 
         if (newCard.rank < 9)
         {
@@ -62,7 +67,7 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
             { frame: 0, value: startPosition },
             { frame: 15, value: midPossition },
 
-            { frame: 30, value: new Vector3(handLength / 4 - 0.45, -2.55, -0.4) },
+            { frame: 30, value: new Vector3(handLength / 3 - 0.45, -2.55, -0.4) },
         ];
 
 

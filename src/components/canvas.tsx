@@ -58,29 +58,139 @@ export default function Canvas()
     {
         if (clonedMeshesRef.current.length > 1)
         {
+
             console.log(clonedMeshesRef.current.length);
             const meshToRemove = clonedMeshesRef.current.pop();
             meshToRemove.dispose();
         }
     }
 
+    interface InstanceMap
+    {
+        [loaderType: string]: any[];
+    }
 
-    // function getChips(tokens: number | undefined)
-    // {
 
-    //     if (!tokens) return;
-    //     const chips = getChipsFromTokens(tokens);
-    //     for (let i = 0; i < chips; i++)
-    //     {
-    //         setTimeout(() => { addClone(0.1) }, 100 * i);
+    const [instances, setInstances] = useState<InstanceMap>({}); //MOVE TO MOBX STORE
 
-    //     }
 
-    // }
+    //MOVE TO UTILS
+    function createInstance(
+        loaderType: string,
+        modelPath: string,
+        scene: Scene | null,
+        position?: Vector3 | null,
+        scaling?: Vector3 | null
+    ): void
+    {
+        if (!instances[loaderType])
+        {
+            setInstances((prevInstances) => ({
+                ...prevInstances,
+                [loaderType]: [], // create empty array if no instances yet
+            }));
+        }
+
+        SceneLoader.ImportMesh("", "./assets/", modelPath, scene, (newMeshes) =>
+        {
+            console.log("newMeshes", newMeshes);
+            const instance = newMeshes[1];
+            instance.scaling = scaling ?? new Vector3(0.6, 0.6, 0.6);
+            // instance.position = position ?? new Vector3(0, -1.3, -0.4);
+            instance.position = position ?? new Vector3(0, 0, -13);
+
+
+            setInstances((prevInstances) => ({
+                ...prevInstances,
+                [loaderType]: [...prevInstances[loaderType], instance], // add instance to instances array
+            }));
+        });
+    }
+
+    function removeInstance(loaderType: string, instanceIndex: number): void
+    {
+        if (instances[loaderType] && instances[loaderType][instanceIndex])
+        {
+            console.log(instances);
+            instances[loaderType][instanceIndex].dispose(); // remove instance from scene
+            setInstances((prevInstances) =>
+            {
+                const newInstances = [...prevInstances[loaderType]];
+                newInstances.splice(instanceIndex, 1); // remove instance from instances array
+                return {
+                    ...prevInstances,
+                    [loaderType]: newInstances,
+                };
+            });
+        }
+    }
+
+
+
+    function createAllInstances(scene: Scene | null): void
+    {
+        //what type is tokenNumbers?
+
+        //TO CONSTS
+
+
+        const tokenNumbers: { [key: string]: number } = getChipsFromTokens(counterStore.gameState!.tokens)
+        for (const [key, value] of Object.entries(tokenNumbers))
+        {
+            const ten = { xpos: -2, zpos: -1 };
+            const fifty = { xpos: -1.7, zpos: 0.5 };
+            const hung = { xpos: -1.9, zpos: -1.5 };
+            const fivehung = { xpos: -0.7, zpos: 0.8 };
+            console.log(value)
+            for (let i = 0; i < value; i++)
+            {
+
+                if (key === "ten")
+                {
+
+
+                    createInstance(key, `${key}.glb`, scene, new Vector3(ten.xpos, -4 + tokenNumbers[key] / 5 - i / 10, ten.zpos), null);
+
+                } else if (key === "fifty")
+                {
+                    createInstance(key, `${key}.glb`, scene, new Vector3(fifty.xpos, -3.5 + tokenNumbers[key] / 5 - i / 10, fifty.zpos), null);
+
+                }
+
+                else if (key === "hung")
+                {
+                    createInstance(key, `${key}.glb`, scene, new Vector3(hung.xpos, -4 + tokenNumbers[key] / 5 - i / 10, hung.zpos), null);
+
+                }
+
+
+
+                else
+                {
+
+
+
+                    createInstance(key, `${key}.glb`, scene, new Vector3(fivehung.xpos, -3.5 + tokenNumbers[key] / 5 - i / 10, fivehung.zpos), null);
+                }
+            }
+        }
+    }
+
+
+
+    async function addChips(x: number): Promise<void>
+    {
+
+        await counterStore.setTokensChangeOnWinOrLoss(counterStore.tokensChangeOnWinOrLoss + x);
+        createAllInstances(sceneState);
+
+
+    }
 
 
     useEffect(() =>
     {
+
         console.log(counterStore)
         if (canvasRef.current)
         {
@@ -107,43 +217,6 @@ export default function Canvas()
             scene.environmentTexture = new CubeTexture("environmentSpecular.env", scene);
             if (clonedMeshesRef.current.length === 0)
             {
-
-                SceneLoader.ImportMesh("", "./assets/", "ten.glb", scene, (newMeshes) =>
-                {
-                    console.log("newMeshes", newMeshes);
-                    newMeshes[1].scaling = new Vector3(0.4, 0.4, 0.4);
-                    newMeshes[1].position = new Vector3(0, -3.3, -0.4);
-                    originalMeshRef.current = newMeshes[1];
-                    const clone = originalMeshRef.current.clone(
-                        `clone_${clonedMeshesRef.current.length}`,
-                        null,
-                        true
-                    );
-                    clone.position.y += clonedMeshesRef.current.length * 2;
-                    clonedMeshesRef.current.push(clone);
-
-                })
-
-
-                // SceneLoader.ImportMesh("", "./assets/", "fifty.glb", scene, (newMeshes) =>
-                // {
-                //     console.log("newMeshes", newMeshes);
-                //     newMeshes[1].scaling = new Vector3(0.4, 0.4, 0.4);
-                //     newMeshes[1].position = new Vector3(0, -3.3, -0.4);
-                //     originalMeshRef.current = newMeshes[1];
-                //     const clone = originalMeshRef.current.clone(
-                //         `clone_${clonedMeshesRef.current.length}`,
-                //         null,
-                //         true
-                //     );
-                //     clone.position.y += clonedMeshesRef.current.length * 2;
-                //     clonedMeshesRef.current.push(clone);
-
-                // }
-
-
-
-                // );
 
             }
 
@@ -193,9 +266,16 @@ export default function Canvas()
                 )}
                 <div className="navbar">
                     {/* <div onClick={() => getChips(counterStore.gameState?.tokens)} className="navbar-button">5</div> */}
-                    <div className="navbar-button"></div>
-                    <div className="navbar-button"></div>
-                    <div className="navbar-button"></div>
+                    <div onClick={() => createInstance("ten", "ten.glb", sceneState, new Vector3(0, 0, -7), new Vector3(0.2, 0.2, 0.2))} className="navbar-button"></div>
+                    <div onClick={() => removeInstance("ten", 0)} className="navbar-button"></div>
+                    <div onClick={() => createInstance("fifty", "fifty.glb", sceneState, new Vector3(2, 0, -7), new Vector3(0.2, 0.2, 0.2))} className="navbar-button"></div>
+                    <div onClick={() => removeInstance("fifty", 0)} className="navbar-button"></div>
+                    {/* <div onClick={() => createAllInstances(tokenNumbers, sceneState)} className="navbar-button"></div> */}
+                    <div onClick={() => createAllInstances(sceneState)} className="navbar-button"></div>
+                    <div onClick={() => addChips(10)} className="navbar-button">10</div>
+                    <div onClick={() => addChips(50)} className="navbar-button">50</div>
+                    <div onClick={() => addChips(100)} className="navbar-button">100</div>
+                    <div onClick={() => addChips(500)} className="navbar-button">500</div>
                 </div>
                 <div className="tokens">
                     <p> Tokens: {counterStore.gameState?.tokens}</p>

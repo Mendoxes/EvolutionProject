@@ -71,20 +71,69 @@ export async function addChips(x: number, counterStore: GameStore): Promise<void
 }
 
 
-export function getChipsFromTokens(tokens: number): { one: number, two: number, three: number, four: number }
+
+
+
+export function getChipsFromTokens(tokens: number): { ten: number, fifty: number, hung: number, fivehung: number }
 {
-    let chipObject = { one: 0, two: 0, three: 0, four: 0 };
+    let chipObject = { ten: 0, fifty: 0, hung: 0, fivehung: 0 };
+    let token = tokens;
 
-    chipObject.four = Math.floor(tokens / 500);
-    tokens = tokens % 500;
+    if (token > 40)
+    {
+        chipObject.ten = 5;
+        token = token - 50;
+    }
 
-    chipObject.three = Math.floor(tokens / 100);
-    tokens = tokens % 100;
+    if (token > 40)
+    {
 
-    chipObject.two = Math.floor(tokens / 50);
-    tokens = tokens % 50;
+        chipObject.fifty = 1;
+        token = token - 50;
 
-    chipObject.one = Math.floor(tokens / 10);
+    }
+
+    if (token > 90)
+    {
+        chipObject.hung = 1;
+        token = token - 100;
+    }
+
+
+    console.log(token)
+
+    if (token >= 500)
+    {
+        chipObject.fivehung = chipObject.fivehung + Math.floor(token / 500);
+        token = token - (Math.floor(token / 500) * 500);
+        console.log(token)
+    }
+
+    if (token >= 100)
+    {
+        chipObject.hung = chipObject.hung + Math.floor(token / 100);
+        token = token - (Math.floor(token / 100) * 100);
+        console.log(token)
+    }
+
+    if (token >= 50)
+    {
+        chipObject.fifty = chipObject.fifty + Math.floor(token / 50);
+        token = token - (Math.floor(token / 50) * 50);
+        console.log(token)
+    }
+    if (token >= 10)
+    {
+        chipObject.ten = chipObject.ten + Math.floor(token / 10);
+        token = token - (Math.floor(token / 10) * 10);
+        console.log(token)
+    }
+
+
+
+    console.log(chipObject)
 
     return chipObject;
 }
+
+

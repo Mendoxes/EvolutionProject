@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { GameState } from '../types';
-const URL_BASE = 'http://localhost:5000/api';
+const URL_BASE = 'http://localhost:8088/api';
 
 export const createNewGame = async () =>
 {
