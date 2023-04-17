@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useContext, useState } from 'react';
-import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Texture, ActionManager, ExecuteCodeAction, Mesh, DynamicTexture, FollowCamera, SceneLoader, Space, CubeTexture, PointLight, DirectionalLight, SpotLight, Animation } from "@babylonjs/core"
+import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Texture, ActionManager, ExecuteCodeAction, Mesh, DynamicTexture, FollowCamera, SceneLoader, Space, CubeTexture, PointLight, DirectionalLight, SpotLight, Animation, ArcRotateCamera } from "@babylonjs/core"
 // import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import "@babylonjs/loaders";
 import { AbstractMesh } from "babylonjs"
@@ -7,18 +7,41 @@ import * as GUI from "babylonjs-gui";
 import { cards } from '../assets/pngCards';
 import CounterContext, { GameStore } from '../store/store';
 import '../App.css'
-import { createNewGame, getChipsFromTokens, hit, stand } from '../utilities/canvas';
+import { addChips, createNewGame, disposeCards, getChipsFromTokens, hit, readyTable, stand } from '../utilities/canvas';
+import GamePhase from './gamePhase';
+import { toJS } from 'mobx';
+import Overlay from './overlay';
+// import { burnCards, cardInstances } from './canvasUtils/canvasUtils';
 
 
 let originalMesh: any = null;
 let clonedMeshes: any = [];
 
+
 export default function Canvas() 
 {
+
+    const mountedStyle = {
+        animation: "inAnimation 250ms ease-in"
+    };
+    const unmountedStyle = {
+        animation: "outAnimation 270ms ease-out",
+        animationFillMode: "forwards"
+    };
+
     const canvasRef = useRef(null);
     const counterStore: GameStore = useContext(CounterContext);
     const [sceneState, setScene] = useState<Scene | null>(null);
     const [gameOver, setGameOVer] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
+
+
+    const [betting, setBetting] = useState(false);
+    const [table, setTable] = useState(false);
+    const [startGame, setStartGame] = useState(false);
+    const [gamePhase, setGamePhase] = useState(false);
+    const [chip, setChip] = useState(0);
+    const [betPerPlayer, setBetPerPlayer] = useState([0, 0, 0]);
 
     useEffect(() =>
     {
@@ -33,6 +56,9 @@ export default function Canvas()
 
     const originalMeshRef = useRef(originalMesh);
     const clonedMeshesRef = useRef(clonedMeshes);
+
+
+
 
 
 
@@ -83,6 +109,7 @@ export default function Canvas()
         scaling?: Vector3 | null
     ): void
     {
+        console.log(instances)
         if (!instances[loaderType])
         {
             setInstances((prevInstances) => ({
@@ -135,6 +162,7 @@ export default function Canvas()
 
 
         const tokenNumbers: { [key: string]: number } = getChipsFromTokens(counterStore.gameState!.tokens)
+        console.log(tokenNumbers)
         for (const [key, value] of Object.entries(tokenNumbers))
         {
             const ten = { xpos: -2, zpos: -1 };
@@ -178,14 +206,18 @@ export default function Canvas()
 
 
 
+
     async function addChips(x: number): Promise<void>
     {
 
-        await counterStore.setTokensChangeOnWinOrLoss(counterStore.tokensChangeOnWinOrLoss + x);
-        createAllInstances(sceneState);
+        await counterStore.setTokensChangeOnWinOrLoss(x);
+
+        // createAllInstances(sceneState);
+        setGamePhase(!gamePhase);
 
 
     }
+
 
 
     useEffect(() =>
@@ -198,11 +230,37 @@ export default function Canvas()
             const scene: Scene = new Scene(engine);
             setScene(scene);
             new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-            const camera = new FreeCamera("camera", new Vector3(0, 7, -18), scene);
+            const camera = new FollowCamera("camera", new Vector3(0, 7, -18), scene);
+            // const camera = new ArcRotateCamera("camera", Math.PI, Math.PI, 115, new Vector3(0, 7, -18), scene);
+            // const camera = new FollowCamera("camera", new Vector3(0, 9, -9), scene);
             // camera.radius = 20; // distance from the target
             // camera.heightOffset = 500; // height above the target
-            camera.setTarget(Vector3.Zero());
+            camera.setTarget(new Vector3(0, -10, 12));
             camera.attachControl(canvasRef.current);
+
+
+            const animationFrames = [
+                { frame: 0, value: new Vector3(0, 25, -40) },
+                { frame: 60, value: new Vector3(0, 4, -12) },
+            ];
+
+            // Create the animation object
+            const cameraAnimation = new Animation(
+                "cameraAnimation",
+                "position",
+                30, // Number of frames per second
+                Animation.ANIMATIONTYPE_VECTOR3,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
+
+            // Set the keys of the animation
+            cameraAnimation.setKeys(animationFrames);
+
+            // Attach the animation to the camera
+            camera.animations.push(cameraAnimation);
+
+            // Start the animation
+            scene.beginAnimation(camera, 0, 60, false);
 
 
             SceneLoader.ImportMesh("", "./", "tabel7.glb", scene, (newMeshes) =>
@@ -219,7 +277,6 @@ export default function Canvas()
             {
 
             }
-
 
             engine.runRenderLoop(() =>
             {
@@ -243,45 +300,136 @@ export default function Canvas()
 
 
 
+
+
     }, []);
+
+
+    useEffect(() =>
+    {
+
+        if (counterStore.gameState?.tokens !== undefined)
+
+            createAllInstances(sceneState)
+
+    }, [gameOver])
+
+
+
+    useEffect(() =>
+    {
+
+        if (counterStore.gameState?.gameOver !== undefined)
+
+            setBetting(true)
+        if (counterStore.gameState?.gameOver === true)
+        {
+            disposeCards();
+        }
+
+    }, [counterStore.gameState?.gameOver])
+
+
+
+    function addHand(x: number): void
+    {
+        counterStore.setPlayerHands(x);
+
+        addChips(chip)
+        console.log(toJS(counterStore._playerHands))
+
+        counterStore.setTokensFromHand(chip, x - 1);
+        console.log(toJS(counterStore.tokentsFromHand))
+
+    }
+
+
+    function hitPLayer(x: number)
+    {
+        counterStore.setLimit(x)
+
+    }
+
+
+
+    // async function acceptHits()
+    // {
+    //     await hit(sceneState, counterStore, setBetting);
+    //     // counterStore._limit = [];
+    // }
 
 
 
 
     return (
-        <div style={{ position: 'relative' }}>
-            <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
-            <div className={`overlay ${gameOver ? 'fadeOut' : ''}`}>
+
+
+
+        <div style={{ position: 'relative', display: "flex" }}>
+
+            <canvas ref={canvasRef} style={{ width: '100vw', height: '100vh' }} />
+
+
+            {/* <Overlay></Overlay> */}
+            <div className={`overlay ${gameStarted ? 'fadeOut' : ''}`}>
                 <h1>Blackjack Game</h1>
                 {!gameOver && (
-                    <div className="start-button">
-                        <button onClick={() => createNewGame(sceneState, counterStore, setGameOVer)}>Start Game</button>
+                    <div className="start-button" style={!gameOver ? mountedStyle : unmountedStyle}>
+                        {gameStarted && counterStore.tokensChangeOnWinOrLoss ? <button onClick={() => createNewGame(sceneState, counterStore, setGameOVer, setBetting)}>Start Game</button> : null}
+                        {!gameStarted && <button onClick={() => readyTable(counterStore, setGameStarted)}>Set table</button>}
+
                     </div>
                 )}
-                {gameOver && (
-                    <div className="game-buttons">
-                        <button onClick={() => hit(sceneState, counterStore)} className="hit-button">Hit</button>
-                        <button onClick={() => stand(sceneState, counterStore)} className="stand-button">Stand</button>
+                {gameOver && counterStore.tokensChangeOnWinOrLoss ?
+                    <div className="game-buttons" style={counterStore.tokensChangeOnWinOrLoss ? mountedStyle : unmountedStyle}>
+                        <button onClick={() => hit(sceneState, counterStore, setBetting)} className="hit-button">Hit</button>
+                        <button onClick={() => stand(sceneState, counterStore, setBetting)} className="stand-button">Stand</button>
+
+                        <div className="bar">
+                            <button id='ten' onClick={() => hitPLayer(1)} className="betting-Chip">HIT P1</button>
+                            <div id='fifty' onClick={() => hitPLayer(2)} className="betting-Chip"> HIT P2</div>
+                            <div id='hundred' onClick={() => hitPLayer(3)} className="betting-Chip">HIT P3</div>
+
+
+
+                        </div>
                     </div>
-                )}
-                <div className="navbar">
-                    {/* <div onClick={() => getChips(counterStore.gameState?.tokens)} className="navbar-button">5</div> */}
-                    <div onClick={() => createInstance("ten", "ten.glb", sceneState, new Vector3(0, 0, -7), new Vector3(0.2, 0.2, 0.2))} className="navbar-button"></div>
-                    <div onClick={() => removeInstance("ten", 0)} className="navbar-button"></div>
-                    <div onClick={() => createInstance("fifty", "fifty.glb", sceneState, new Vector3(2, 0, -7), new Vector3(0.2, 0.2, 0.2))} className="navbar-button"></div>
-                    <div onClick={() => removeInstance("fifty", 0)} className="navbar-button"></div>
-                    {/* <div onClick={() => createAllInstances(tokenNumbers, sceneState)} className="navbar-button"></div> */}
-                    <div onClick={() => createAllInstances(sceneState)} className="navbar-button"></div>
-                    <div onClick={() => addChips(10)} className="navbar-button">10</div>
-                    <div onClick={() => addChips(50)} className="navbar-button">50</div>
-                    <div onClick={() => addChips(100)} className="navbar-button">100</div>
-                    <div onClick={() => addChips(500)} className="navbar-button">500</div>
-                </div>
+
+
+                    : null
+                }
+
+                {betting && <div><div>PLEASE PLACE YOUR BETS</div>
+
+                    <div className="bar" style={{ marginTop: "2rem" }}>
+                        <button id='ten' onClick={() => setChip(10)} className="betting-Chip">10</button>
+                        <div id='fifty' onClick={() => setChip(50)} className="betting-Chip">50</div>
+                        <div id='hundred' onClick={() => setChip(100)} className="betting-Chip">100</div>
+                        <div id='fivehundred' onClick={() => setChip(500)} className="betting-Chip">500</div>
+
+                    </div>
+
+
+                    <div className="bar">
+                        <button id='ten' onClick={() => addHand(1)} className="betting-Chip">P1</button>
+                        <div id='fifty' onClick={() => addHand(2)} className="betting-Chip">P2</div>
+                        <div id='hundred' onClick={() => addHand(3)} className="betting-Chip">P3</div>
+
+
+                    </div>
+
+
+                </div>}
+
                 <div className="tokens">
-                    <p> Tokens: {counterStore.gameState?.tokens}</p>
+                    <p> Tokens: {(counterStore.gameState?.tokens || 0) - counterStore.tokensChangeOnWinOrLoss}</p>
+                    <p>Currently betting: {counterStore.tokensChangeOnWinOrLoss} </p>
+
                     <button onClick={() => addClone(0.1)}>Add clone</button>
                     <button onClick={removeClone}>remove clone</button>
+
                 </div>
+
             </div>
         </div>
 

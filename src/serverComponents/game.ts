@@ -5,31 +5,47 @@ import { createDeck, shuffleDeck, dealCards, calculateHandScore } from '../utili
 let deck: Card[] = [];
 
 
+
 export const createGame = async (req: express.Request, res: express.Response) =>
 {
 
-  deck = req.body.deck !== undefined ? req.body.deck : createDeck();
-  shuffleDeck(deck);  //its shuffling the deck every time new game is created so we should change it so its only shuffled when new deck is created
+
+  console.log(req.body)
+  const numHands = req.body._playerHands?.length;
+
+  console.log("playerHands", numHands)
+
+  deck = req.body._gameState.deck !== undefined ? req.body._gameState.deck : createDeck();
+
   if (deck.length < 10)
   {
     deck = createDeck();
     shuffleDeck(deck);
   }
 
-  const playerHand = dealCards(deck, 1);
+  const playerHands = [];
+  const playerScores = [];
+
+  for (let i = 0; i < numHands; i++)
+  {
+    playerHands.push(dealCards(deck, 1));
+    playerScores.push(calculateHandScore(playerHands[i]));
+  }
+
   const dealerHand = dealCards(deck, 1);
-  //timeout for second card? or get 2 cards at once and then display them one by one?
-  const tokens = req.body.tokens !== undefined ? req.body.tokens : 1000
+  const tokens = req.body.tokens !== undefined ? req.body.tokens : 1000;
+
   const gameState = {
-    playerHand,
+    playerHands,
     dealerHand,
     deck,
-    playerScore: calculateHandScore(playerHand),
+    playerScores,
     dealerScore: calculateHandScore(dealerHand),
     gameOver: false,
-    tokens
+    hands: req.body._playerHands,
+    tokens,
+    limit: 1
   };
-
 
 
   res.json(gameState);

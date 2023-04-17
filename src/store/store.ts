@@ -2,8 +2,6 @@
 
 import { action, computed, makeAutoObservable, observable } from "mobx";
 import { createContext } from "react";
-// import { useContext } from "react";
-// import { observer } from "mobx-react-lite";
 import axios from "axios";
 import { GameState } from '../types';
 const URL_BASE = 'http://localhost:8088/api';
@@ -13,6 +11,11 @@ export class GameStore
 
   private _gameState: GameState | null = null;
   private _tokensChangeOnWinOrLoss = 0;
+  private _tokentsFromHand = [0, 0, 0]
+  private _bank = 0;
+  public _playerHands: number[] = [];
+  public _limit: number[] = [];
+  public _playerStand: number[] = [];
 
   constructor()
   {
@@ -22,8 +25,62 @@ export class GameStore
       createNewGame: action,
       setTokensChangeOnWinOrLoss: action,
       tokensChangeOnWinOrLoss: computed,
+      setTokensFromHand: action,
+      setLimit: action,
+
+      tokentsFromHand: computed,
+      setPlayerHands: action,
+      playerHands: computed
+      // bank: computed
     });
   }
+
+
+
+  setLimit: (limit: number) => unknown = (limit: number) =>
+  {
+    if (!this._limit.includes(limit))
+    {
+      this._limit.push(limit)
+    }
+  }
+
+  // setPlayerStand: (limit: number) => unknown = (limit: number) =>
+  // {
+  //   this._limit.push(limit);
+  // }
+
+  setTokensFromHand: (tokens: number, x: number) => unknown = (tokens: number, x: number) =>
+  {
+
+
+    this._tokentsFromHand[x] += tokens;
+    console.log(tokens)
+
+  }
+
+  get tokentsFromHand(): number[]
+  {
+    return this._tokentsFromHand;
+  }
+
+
+  setPlayerHands: (playerHand: number) => unknown = (playerHand: number) =>
+  {
+    if (!this.playerHands.includes(playerHand))
+    {
+
+      this.playerHands.push(playerHand);
+    }
+  }
+
+
+  get playerHands(): number[]
+  {
+    return this._playerHands
+  }
+
+
 
   get tokensChangeOnWinOrLoss(): number
   {
@@ -32,7 +89,10 @@ export class GameStore
 
   setTokensChangeOnWinOrLoss: (tokens: number) => unknown = (tokens: number) =>
   {
-    this._tokensChangeOnWinOrLoss = tokens;
+    console.log(tokens)
+
+    this._tokensChangeOnWinOrLoss += tokens;
+
   }
 
   get gameState(): GameState | null
@@ -45,12 +105,11 @@ export class GameStore
     this._gameState = gameState;
   }
 
-
-  async createNewGame(): Promise<void>
+  async setTable(): Promise<void>
   {
     try
     {
-      const response = await axios.post(`${URL_BASE}/game`, this.gameState);
+      const response = await axios.post(`${URL_BASE}/table`, this.gameState);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
       this.setGameState(gameState)
@@ -60,13 +119,32 @@ export class GameStore
     }
   }
 
+
+
+  async createNewGame(): Promise<void>
+  {
+    try
+    {
+      const response = await axios.post(`${URL_BASE}/game`, this);
+      const gameState: GameState = response.data;
+      console.log('Game state:', gameState);
+      this.setGameState(gameState)
+    } catch (error)
+    {
+      console.error('Error creating new game:', error);
+    }
+  }
+
+
+
+
   async hit(): Promise<void>
   {
     try
     {
 
 
-      const response = await axios.post(`${URL_BASE}/hit`, this.gameState);
+      const response = await axios.post(`${URL_BASE}/hit`, this);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
 
@@ -74,14 +152,21 @@ export class GameStore
       {
 
         gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-        this.setTokensChangeOnWinOrLoss(0)
+        console.log(this.tokensChangeOnWinOrLoss)
+        // this.setTokensChangeOnWinOrLoss(0)
+        this._tokensChangeOnWinOrLoss = 0;
 
       } else if (gameState.gameOver && gameState.winner === 'player')
       {
 
         gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
-        this.setTokensChangeOnWinOrLoss(0)
+        console.log(this.tokensChangeOnWinOrLoss)
+        // this.setTokensChangeOnWinOrLoss(0)
+        this._tokensChangeOnWinOrLoss = 0;
+        console.log(this.tokensChangeOnWinOrLoss)
       }
+
+      // this._limit = [];
       this.setGameState(gameState)
     } catch (error)
     {
@@ -98,17 +183,32 @@ export class GameStore
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
 
-      if (gameState.gameOver && gameState.winner === 'dealer')
+      if (gameState.gameOver && gameState.winner![0] === 'dealer')
       {
 
         gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-        this.setTokensChangeOnWinOrLoss(0)
+        // this.setTokensChangeOnWinOrLoss(0)
+        this._tokensChangeOnWinOrLoss = 0;
 
-      } else if (gameState.gameOver && gameState.winner === 'player')
+      } else if (gameState.gameOver && gameState.winner)
       {
+        for (let i = 0; i < gameState.winner.length; i++)
+        {
+          gameState.tokens = gameState.tokens + this._tokentsFromHand[i]
+          this._tokentsFromHand[i] = 0;
 
-        gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
-        this.setTokensChangeOnWinOrLoss(0)
+        }
+        let sum = 0;
+
+        for (let i = 0; i < this._tokentsFromHand.length; i++)
+        {
+          sum += this._tokentsFromHand[i];
+        }
+
+        gameState.tokens = gameState.tokens - sum;
+        console.log(gameState.winner)
+        console.log(gameState.hands)
+        this._tokensChangeOnWinOrLoss = 0;
       }
       this.setGameState(gameState);
     } catch (error)

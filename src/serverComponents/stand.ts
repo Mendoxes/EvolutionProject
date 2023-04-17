@@ -1,12 +1,10 @@
+
 import express from 'express';
 import { calculateHandScore, dealCards } from '../utilities';
 
-
 export const stand = async (req: express.Request, res: express.Response) =>
 {
-
     const gameState = req.body;
-    console.log(gameState)
     const { deck } = gameState;
     if (deck.length === 0)
     {
@@ -14,43 +12,47 @@ export const stand = async (req: express.Request, res: express.Response) =>
         return;
     }
 
-    if (gameState.dealerScore < 17 && gameState.gameOver === false)
+    // Update the dealer's hand and score
+    while (gameState.dealerScore < 17 && !gameState.gameOver)
     {
-
         gameState.dealerHand.push(deck.pop()!);
         gameState.dealerScore = calculateHandScore(gameState.dealerHand);
-        console.log(calculateHandScore(gameState.dealerHand));
-
-
     }
 
-    if (gameState.dealerScore > 21)
+    const winners = [];
+    for (let handIndex = 0; handIndex < gameState.hands.length; handIndex++)
+
+    // for (const handIndex of gameState.hands)
     {
-        gameState.gameOver = true;
-        gameState.winner = "player";
+        console.log(winners)
+        const handScore = gameState.playerScores[handIndex];
+        console.log(handScore)
+        console.log(gameState.dealerScore)
+        if (handScore <= 21 && (handScore > gameState.dealerScore || gameState.dealerScore > 21))
+        {
+            console.log(handScore)
+            console.log(gameState.dealerScore)
+            winners.push(handIndex);
+        }
     }
 
-    if (gameState.dealerScore === 21)
+    gameState.gameOver = true;
+    if (winners.length === 0)   
     {
-        gameState.gameOver = true;
-        gameState.winner = "dealer";
+        gameState.winner = ["dealer"];
     }
-
-    if (gameState.dealerScore <= 21 && gameState.dealerScore >= gameState.playerScore)
+    else if (winners.length === 1)
     {
-        gameState.gameOver = true;
-        gameState.winner = "dealer";
+        // gameState.winner = `Player ${winners[0] + 1}`;
+        gameState.winner = winners
     }
-
-    if (gameState.dealerScore < 21 && gameState.dealerScore >= 17 && gameState.dealerScore < gameState.playerScore)
+    else
     {
-        gameState.gameOver = true;
-        gameState.winner = "player";
+        gameState.winner = winners
+        // gameState.winner = `Players ${winners.map(index => index + 1).join(", ")}`;
     }
 
-
-
+    // console.log(gameState)
 
     res.json(gameState);
-
 }

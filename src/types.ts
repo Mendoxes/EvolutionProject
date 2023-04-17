@@ -47,11 +47,15 @@ export type SinglePageCard = Card & {
 
 export type GameState = {
   playerHand: Card[];
+  playerHands: any;
   dealerHand: Card[];
   deck: Card[];
   playerScore: number;
   dealerScore: number;
   gameOver: boolean;
   tokens: number;
+  hands?: number[];
   winner?: "player" | "dealer" | "tie";
+  bet?: number;
+  limit?: number;
 };
