@@ -11,6 +11,9 @@ import { addChips, createNewGame, disposeCards, getChipsFromTokens, hit, readyTa
 import GamePhase from './gamePhase';
 import { toJS } from 'mobx';
 import Overlay from './overlay';
+import Navbar from './navbar';
+import HandSpots from './handSpots';
+import Hit from './Hit';
 // import { burnCards, cardInstances } from './canvasUtils/canvasUtils';
 
 
@@ -42,6 +45,7 @@ export default function Canvas()
     const [gamePhase, setGamePhase] = useState(false);
     const [chip, setChip] = useState(0);
     const [betPerPlayer, setBetPerPlayer] = useState([0, 0, 0]);
+    const [gameStart, setGameStart] = useState(false);
 
     useEffect(() =>
     {
@@ -64,8 +68,7 @@ export default function Canvas()
 
     function addClone(distanceBetweenClones: any)
     {
-        console.log("click");
-        console.log(clonedMeshesRef.current);
+
         if (originalMeshRef.current)
         {
             const clone = originalMeshRef.current.clone(
@@ -85,7 +88,7 @@ export default function Canvas()
         if (clonedMeshesRef.current.length > 1)
         {
 
-            console.log(clonedMeshesRef.current.length);
+
             const meshToRemove = clonedMeshesRef.current.pop();
             meshToRemove.dispose();
         }
@@ -109,7 +112,7 @@ export default function Canvas()
         scaling?: Vector3 | null
     ): void
     {
-        console.log(instances)
+
         if (!instances[loaderType])
         {
             setInstances((prevInstances) => ({
@@ -120,7 +123,7 @@ export default function Canvas()
 
         SceneLoader.ImportMesh("", "./assets/", modelPath, scene, (newMeshes) =>
         {
-            console.log("newMeshes", newMeshes);
+
             const instance = newMeshes[1];
             instance.scaling = scaling ?? new Vector3(0.6, 0.6, 0.6);
             // instance.position = position ?? new Vector3(0, -1.3, -0.4);
@@ -138,7 +141,7 @@ export default function Canvas()
     {
         if (instances[loaderType] && instances[loaderType][instanceIndex])
         {
-            console.log(instances);
+
             instances[loaderType][instanceIndex].dispose(); // remove instance from scene
             setInstances((prevInstances) =>
             {
@@ -162,14 +165,14 @@ export default function Canvas()
 
 
         const tokenNumbers: { [key: string]: number } = getChipsFromTokens(counterStore.gameState!.tokens)
-        console.log(tokenNumbers)
+
         for (const [key, value] of Object.entries(tokenNumbers))
         {
             const ten = { xpos: -2, zpos: -1 };
             const fifty = { xpos: -1.7, zpos: 0.5 };
             const hung = { xpos: -1.9, zpos: -1.5 };
             const fivehung = { xpos: -0.7, zpos: 0.8 };
-            console.log(value)
+
             for (let i = 0; i < value; i++)
             {
 
@@ -207,23 +210,23 @@ export default function Canvas()
 
 
 
-    async function addChips(x: number): Promise<void>
-    {
+    // async function addChips(x: number): Promise<void>
+    // {
 
-        await counterStore.setTokensChangeOnWinOrLoss(x);
+    //     await counterStore.setTokensChangeOnWinOrLoss(x);
 
-        // createAllInstances(sceneState);
-        setGamePhase(!gamePhase);
+    //     // createAllInstances(sceneState);
+    //     setGamePhase(!gamePhase);
 
 
-    }
+    // }
 
 
 
     useEffect(() =>
     {
 
-        console.log(counterStore)
+
         if (canvasRef.current)
         {
             const engine = new Engine(canvasRef.current);
@@ -265,7 +268,7 @@ export default function Canvas()
 
             SceneLoader.ImportMesh("", "./", "tabel7.glb", scene, (newMeshes) =>
             {
-                console.log("newMeshes", newMeshes)
+
 
                 newMeshes[0].position = new Vector3(0, -13, 9);
                 newMeshes[0].rotate(new Vector3(0, 1, 0), Math.PI, Space.WORLD);
@@ -277,6 +280,8 @@ export default function Canvas()
             {
 
             }
+
+
 
             engine.runRenderLoop(() =>
             {
@@ -319,29 +324,23 @@ export default function Canvas()
     useEffect(() =>
     {
 
-        if (counterStore.gameState?.gameOver !== undefined)
+        if (counterStore.gameState?.gameOver !== undefined && gameStart === false)
+
 
             setBetting(true)
+
         if (counterStore.gameState?.gameOver === true)
         {
+            //clean up
             disposeCards();
+            counterStore.setPlayerNumber([]);
         }
 
     }, [counterStore.gameState?.gameOver])
 
 
 
-    function addHand(x: number): void
-    {
-        counterStore.setPlayerHands(x);
 
-        addChips(chip)
-        console.log(toJS(counterStore._playerHands))
-
-        counterStore.setTokensFromHand(chip, x - 1);
-        console.log(toJS(counterStore.tokentsFromHand))
-
-    }
 
 
     function hitPLayer(x: number)
@@ -352,11 +351,8 @@ export default function Canvas()
 
 
 
-    // async function acceptHits()
-    // {
-    //     await hit(sceneState, counterStore, setBetting);
-    //     // counterStore._limit = [];
-    // }
+
+
 
 
 
@@ -372,34 +368,37 @@ export default function Canvas()
 
             {/* <Overlay></Overlay> */}
             <div className={`overlay ${gameStarted ? 'fadeOut' : ''}`}>
-                <h1>Blackjack Game</h1>
+                {/* <div className='navbar'> oki </div> */}
+                {counterStore.gameState?.hands && <Navbar></Navbar>}
+                {/* <h1>Blackjack Game</h1> */}
                 {!gameOver && (
                     <div className="start-button" style={!gameOver ? mountedStyle : unmountedStyle}>
-                        {gameStarted && counterStore.tokensChangeOnWinOrLoss ? <button onClick={() => createNewGame(sceneState, counterStore, setGameOVer, setBetting)}>Start Game</button> : null}
+                        {gameStarted && counterStore.tokensChangeOnWinOrLoss ? <button onClick={() => createNewGame(sceneState, counterStore, setGameOVer, setBetting, setGameStart)}>Start Game</button> : null}
                         {!gameStarted && <button onClick={() => readyTable(counterStore, setGameStarted)}>Set table</button>}
 
                     </div>
                 )}
                 {gameOver && counterStore.tokensChangeOnWinOrLoss ?
                     <div className="game-buttons" style={counterStore.tokensChangeOnWinOrLoss ? mountedStyle : unmountedStyle}>
-                        <button onClick={() => hit(sceneState, counterStore, setBetting)} className="hit-button">Hit</button>
-                        <button onClick={() => stand(sceneState, counterStore, setBetting)} className="stand-button">Stand</button>
+                        {/* <button onClick={() => hit(sceneState, counterStore)} className="hit-button">Hit</button>
+                        <button onClick={() => stand(sceneState, counterStore, setGameStart)} className="stand-button">Stand</button> */}
 
-                        <div className="bar">
+                        {/* <div className="bar">
                             <button id='ten' onClick={() => hitPLayer(1)} className="betting-Chip">HIT P1</button>
                             <div id='fifty' onClick={() => hitPLayer(2)} className="betting-Chip"> HIT P2</div>
                             <div id='hundred' onClick={() => hitPLayer(3)} className="betting-Chip">HIT P3</div>
 
 
 
-                        </div>
+                        </div> */}
+                        <Hit props={sceneState} state={setGameStart}></Hit>
                     </div>
 
 
                     : null
                 }
 
-                {betting && <div><div>PLEASE PLACE YOUR BETS</div>
+                {betting && <div>
 
                     <div className="bar" style={{ marginTop: "2rem" }}>
                         <button id='ten' onClick={() => setChip(10)} className="betting-Chip">10</button>
@@ -409,21 +408,22 @@ export default function Canvas()
 
                     </div>
 
-
+                    {/* 
                     <div className="bar">
                         <button id='ten' onClick={() => addHand(1)} className="betting-Chip">P1</button>
                         <div id='fifty' onClick={() => addHand(2)} className="betting-Chip">P2</div>
                         <div id='hundred' onClick={() => addHand(3)} className="betting-Chip">P3</div>
 
 
-                    </div>
+                    </div> */}
 
-
+                    <HandSpots chips={chip} state={setGamePhase} phase={gamePhase}></HandSpots>
                 </div>}
 
                 <div className="tokens">
                     <p> Tokens: {(counterStore.gameState?.tokens || 0) - counterStore.tokensChangeOnWinOrLoss}</p>
                     <p>Currently betting: {counterStore.tokensChangeOnWinOrLoss} </p>
+
 
                     <button onClick={() => addClone(0.1)}>Add clone</button>
                     <button onClick={removeClone}>remove clone</button>
@@ -431,6 +431,7 @@ export default function Canvas()
                 </div>
 
             </div>
+
         </div>
 
 

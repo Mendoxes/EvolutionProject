@@ -75,10 +75,12 @@ export const hit = async (req: express.Request, res: express.Response) =>
     }
   }
 
+
+
   const updatedGameState = {
     ...gameState,
     playerHands,
-    // limit: []
+    limit: []
   };
 
   res.json(updatedGameState);

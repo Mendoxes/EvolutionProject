@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { toJS } from "mobx";
 import { cards } from "../assets/pngCards";
 import { cardInstances, getCards2 } from "../components/canvasUtils/canvasUtils";
@@ -18,7 +19,7 @@ const vectorY2 = -2
 const vectorY3 = -1.85
 
 
-export async function createNewGame(scene: any, counterStore: GameStore, setGameOVer: (arg0: boolean) => void, setBetting: (arg0: boolean) => void,): Promise<void>
+export async function createNewGame(scene: any, counterStore: GameStore, setGameOVer: (arg0: boolean) => void, setBetting: (arg0: boolean) => void, setGameStart: (arg0: boolean) => void): Promise<void>
 {
     await counterStore.createNewGame();
 
@@ -35,6 +36,7 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
             instance = null;
 
         });
+        // getCards2(counterStore, scene, cards, "dealerHand", 0, player3 + 0.95, vectorY3, -2.6)
 
 
         for (let i = 0; i < counterStore.gameState.hands!.length; i++)
@@ -42,14 +44,14 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
             setTimeout(() =>
             {
                 console.log(counterStore.gameState!.hands![i])
-                if (counterStore.gameState!.hands![i] === 1)
+                if (counterStore.gameState!.hands![i] === 2)
                 {
 
                     getCards2(counterStore, scene, cards, "playerHands", i, player1 + 0.95, vectorY1, 0)
                 }
 
 
-                if (counterStore.gameState!.hands![i] === 2)
+                if (counterStore.gameState!.hands![i] === 1)
                 {
 
                     getCards2(counterStore, scene, cards, "playerHands", i, player2 + 0.95, vectorY2, 2.6)
@@ -67,6 +69,8 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
         }
 
 
+        setBetting(false);
+        setGameStart(true);
 
 
 
@@ -95,7 +99,9 @@ export async function readyTable(counterStore: GameStore, setGameStarted: (arg0:
 
 }
 
-export async function hit(scene: any, counterStore: GameStore, setBetting: (arg0: boolean) => void,): Promise<void>
+
+
+export async function hit(scene: any, counterStore: GameStore): Promise<void>
 {
 
 
@@ -105,33 +111,50 @@ export async function hit(scene: any, counterStore: GameStore, setBetting: (arg0
         if (!counterStore.gameState?.gameOver)
         {
             await counterStore.hit();
+            const newLimit = counterStore._limit
 
             // console.log(toJS(counterStore._limit))
 
+
+
             // for (let i = 0; i < counterStore.gameState.hands!.length; i++)
-            for (let i = 0; i < counterStore._limit.length; i++)
+            for (let i = 0; i < newLimit.length; i++)
             {
+
+                const a = newLimit[i];
+                const b = toJS(counterStore.gameState!.hands);
+
+                let index = b!.indexOf(a);
+                if (index === -1)
+                {
+
+                    index = newLimit[i]
+                }
+
+
                 setTimeout(() =>
                 {
-                    console.log(counterStore.gameState!.hands![i])
-                    console.log(toJS(counterStore._limit[i]))
 
-                    if (counterStore._limit[i] === 1)
+
+                    if (newLimit[i] === 2)
                     {
 
-                        getCards2(counterStore, scene, cards, "playerHands", i, player1 + 0.95, vectorY1, 0)
+
+                        getCards2(counterStore, scene, cards, "playerHands", index, player1 + 0.95, vectorY1, 0)
                     }
 
-                    if (counterStore._limit[i] === 2)
+                    if (newLimit[i] === 1)
                     {
 
-                        getCards2(counterStore, scene, cards, "playerHands", i, player2 + 0.95, vectorY2, 2.6)
+
+
+                        getCards2(counterStore, scene, cards, "playerHands", index, player2 + 0.95, vectorY2, 2.6)
                     }
 
-                    if (counterStore._limit[i] === 3)
+                    if (newLimit[i] === 3)
                     {
 
-                        getCards2(counterStore, scene, cards, "playerHands", i, player3 + 0.95, vectorY3, -2.6)
+                        getCards2(counterStore, scene, cards, "playerHands", index, player3 + 0.95, vectorY3, -2.6)
                     }
 
 
@@ -141,14 +164,17 @@ export async function hit(scene: any, counterStore: GameStore, setBetting: (arg0
 
 
         }
+
     }
 
-    setBetting(false)
+    // setBetting(false)
+
+    counterStore._limit = [];
 }
 
 
 
-export async function stand(scene: any, counterStore: GameStore, setBetting: (arg0: boolean) => void,): Promise<void>
+export async function stand(scene: any, counterStore: GameStore, setGameStart: (arg0: boolean) => void): Promise<void>
 {
     if (!counterStore.gameState?.gameOver)
     {
@@ -163,11 +189,13 @@ export async function stand(scene: any, counterStore: GameStore, setBetting: (ar
                 console.log(counterStore.gameState.dealerScore)
 
                 // getCards2(counterStore, scene, cards, "dealerHand")
+                // getCards2(counterStore, scene, cards, "dealerHand", 1, player3 + 0.95, vectorY3, -2.6)
 
             }
     }
 
-    setBetting(false)
+    // setBetting(false)
+    setGameStart(false)
 }
 
 

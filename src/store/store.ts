@@ -59,6 +59,12 @@ export class GameStore
 
   }
 
+
+  setPlayerNumber: (playerNumber: number[]) => unknown = (playerNumber: number[]) =>
+  {
+    this._playerHands = playerNumber;
+  }
+
   get tokentsFromHand(): number[]
   {
     return this._tokentsFromHand;
@@ -71,6 +77,12 @@ export class GameStore
     {
 
       this.playerHands.push(playerHand);
+
+
+      this.playerHands.sort(function (a, b)
+      {
+        return a - b;
+      });
     }
   }
 
@@ -129,6 +141,7 @@ export class GameStore
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
       this.setGameState(gameState)
+      console.log(gameState)
     } catch (error)
     {
       console.error('Error creating new game:', error);
@@ -168,6 +181,7 @@ export class GameStore
 
       // this._limit = [];
       this.setGameState(gameState)
+
     } catch (error)
     {
       console.error('Error creating new game:', error);
@@ -211,6 +225,7 @@ export class GameStore
         this._tokensChangeOnWinOrLoss = 0;
       }
       this.setGameState(gameState);
+      this._tokentsFromHand = [0, 0, 0];
     } catch (error)
     {
       console.error('Error standing:', error);
