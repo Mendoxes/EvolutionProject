@@ -1,10 +1,13 @@
 
 
-import { action, computed, makeAutoObservable, observable } from "mobx";
+import { action, computed, makeAutoObservable, observable, toJS } from "mobx";
 import { createContext } from "react";
 import axios from "axios";
 import { GameState } from '../types';
-const URL_BASE = 'http://localhost:8088/api';
+// const URL_BASE = 'http://localhost:8088/api';
+const URL_BASE = 'https://servertesttsc.herokuapp.com/api';
+
+
 
 export class GameStore
 {
@@ -12,6 +15,7 @@ export class GameStore
   private _gameState: GameState | null = null;
   private _tokensChangeOnWinOrLoss = 0;
   private _tokentsFromHand = [0, 0, 0]
+  public _prevTokentsFromHand = [0, 0, 0]
   private _bank = 0;
   public _playerHands: number[] = [];
   public _limit: number[] = [];
@@ -55,7 +59,7 @@ export class GameStore
 
 
     this._tokentsFromHand[x] += tokens;
-    console.log(tokens)
+
 
   }
 
@@ -101,7 +105,7 @@ export class GameStore
 
   setTokensChangeOnWinOrLoss: (tokens: number) => unknown = (tokens: number) =>
   {
-    console.log(tokens)
+
 
     this._tokensChangeOnWinOrLoss += tokens;
 
@@ -137,11 +141,12 @@ export class GameStore
   {
     try
     {
+
       const response = await axios.post(`${URL_BASE}/game`, this);
       const gameState: GameState = response.data;
       console.log('Game state:', gameState);
       this.setGameState(gameState)
-      console.log(gameState)
+
     } catch (error)
     {
       console.error('Error creating new game:', error);
@@ -159,25 +164,25 @@ export class GameStore
 
       const response = await axios.post(`${URL_BASE}/hit`, this);
       const gameState: GameState = response.data;
-      console.log('Game state:', gameState);
 
-      if (gameState.gameOver && gameState.winner === 'dealer')
-      {
 
-        gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-        console.log(this.tokensChangeOnWinOrLoss)
-        // this.setTokensChangeOnWinOrLoss(0)
-        this._tokensChangeOnWinOrLoss = 0;
+      // if (gameState.gameOver && gameState.winner === 'dealer')
+      // {
 
-      } else if (gameState.gameOver && gameState.winner === 'player')
-      {
+      //   gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
+      //   console.log(this.tokensChangeOnWinOrLoss)
+      //   // this.setTokensChangeOnWinOrLoss(0)
+      //   this._tokensChangeOnWinOrLoss = 0;
 
-        gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
-        console.log(this.tokensChangeOnWinOrLoss)
-        // this.setTokensChangeOnWinOrLoss(0)
-        this._tokensChangeOnWinOrLoss = 0;
-        console.log(this.tokensChangeOnWinOrLoss)
-      }
+      // } else if (gameState.gameOver && gameState.winner === 'player')
+      // {
+
+      //   gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
+      //   console.log(this.tokensChangeOnWinOrLoss)
+      //   // this.setTokensChangeOnWinOrLoss(0)
+      //   this._tokensChangeOnWinOrLoss = 0;
+      //   console.log(this.tokensChangeOnWinOrLoss)
+      // }
 
       // this._limit = [];
       this.setGameState(gameState)
@@ -199,32 +204,46 @@ export class GameStore
 
       if (gameState.gameOver && gameState.winner![0] === 'dealer')
       {
+        for (let i = 0; i < gameState.hands?.length!; i++)
+        {
+          gameState.tokens = gameState.tokens - this._tokentsFromHand[gameState.hands![i] - 1]
+          // this._prevTokentsFromHand[i] = this._tokentsFromHand[i]
+          this._tokentsFromHand[gameState.hands![i] - 1] = 0;
 
-        gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-        // this.setTokensChangeOnWinOrLoss(0)
-        this._tokensChangeOnWinOrLoss = 0;
+        }
 
-      } else if (gameState.gameOver && gameState.winner)
+        // gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
+        // // this.setTokensChangeOnWinOrLoss(0)
+        // this._tokensChangeOnWinOrLoss = 0;
+
+      }
+
+
+      else if (gameState.gameOver && gameState.winner)
       {
         for (let i = 0; i < gameState.winner.length; i++)
         {
           gameState.tokens = gameState.tokens + this._tokentsFromHand[i]
+          // this._prevTokentsFromHand[i] = this._tokentsFromHand[i]
           this._tokentsFromHand[i] = 0;
 
         }
         let sum = 0;
 
+
         for (let i = 0; i < this._tokentsFromHand.length; i++)
         {
           sum += this._tokentsFromHand[i];
+
         }
 
         gameState.tokens = gameState.tokens - sum;
-        console.log(gameState.winner)
-        console.log(gameState.hands)
+
         this._tokensChangeOnWinOrLoss = 0;
       }
       this.setGameState(gameState);
+      // this._prevTokentsFromHand = this._tokentsFromHand;
+
       this._tokentsFromHand = [0, 0, 0];
     } catch (error)
     {

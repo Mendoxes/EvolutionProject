@@ -10,39 +10,44 @@ import { getSuitFromValue } from "../../utilities";
 export const cardInstances: any = [];
 
 
-export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: string]: string }, who: "playerHands" | "dealerHand", index: number, Xvector: number, Yvector: number, skew: number)
+export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: string]: string }, who: "playerHands" | "dealerHand", index: number, Xvector: number, Yvector: number, Zvector: number, skew: number)
 {
     const cardMesh = MeshBuilder.CreatePlane("card", { width: 2.5, height: 4.3 }, scene);
     cardMesh.position.y = 0.72;
-    cardMesh.scaling = new Vector3(0.7, 0.7, 0.7);
+    cardMesh.scaling = new Vector3(0.8, 0.8, 0.8);
 
     if (counterStore.gameState !== null)
     {
 
+        let handLength;
+
+        // const handLength = counterStore.gameState[who][index].length;
+
+        let newCard: Card;
+
+        if (who === "playerHands")
+        {
+            handLength = counterStore.gameState[who][index].length;
+            newCard = counterStore.gameState[who][index][handLength - 1];
+        }
+
+        else
+        {
+
+            handLength = counterStore.gameState[who].length;
+            newCard = counterStore.gameState[who][index];
 
 
-        const handLength = counterStore.gameState[who][index].length;
-        // let newCard: Card;
-
-        // if (who === "playerHands")
-        // {
-
-        //     newCard = counterStore.gameState[who][index][handLength - 1];
-        // }
-
-        // else
-        // {
-
-        //     newCard = counterStore.gameState[who][index]
-        // }
 
 
-        const newCard: Card = counterStore.gameState[who][index][handLength - 1];
+        }
+
+        // const newCard: Card = counterStore.gameState[who][index][handLength - 1];
         const rank = newCard.rank;
 
         const suit = getSuitFromValue(newCard.suit);
         const cardMaterial = new StandardMaterial("cardMat", scene);
-        cardMaterial.backFaceCulling = false;
+        // cardMaterial.backFaceCulling = false;
 
 
 
@@ -57,7 +62,21 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
             cardMaterial.diffuseTexture = new Texture(cards[`${Rank[newCard.rank]}-${suit}`], scene);
         }
 
-        const cardInstance = cardMesh.clone(`card-${handLength - 1}-${who}`)
+        // let cardInstance = cardMesh.clone(`card-${handLength - 1}-${who}`)
+        let cardInstance: any;
+
+        if (who === "playerHands")
+        {
+
+            cardInstance = cardMesh.clone(`card-${handLength - 1}-${who}`)
+        } else
+        {
+
+            cardInstance = cardMesh.clone(`card-${index}-${who}`)
+
+        }
+
+
 
 
         cardInstance.material = cardMaterial;
@@ -66,7 +85,10 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
 
         if (who === "dealerHand")
         {
-            cardInstance.position.y = 0.05;
+            // cardInstance.position.y = 0.05;
+            // cardInstance.position.x = 22;
+            cardInstance.position.y = 0.12;
+            cardInstance.position.z = -3.5;
             cardInstance.position.x = 22;
         } else
         {
@@ -89,18 +111,23 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
         const keys = [
             { frame: 0, value: startPosition },
             { frame: 15, value: midPossition },
-            // { frame: 30, value: new Vector3(handLength / 3 - vector, - 2.55, -0.4) },
-            { frame: 30, value: new Vector3(handLength / 3 - Xvector, Yvector + handLength / 1000, -0.4) },
 
-            // { frame: 30, value: new Vector3(handLength / 3 - 0.45, -2.55, -0.4) },
+            { frame: 30, value: new Vector3(handLength / 3 - Xvector, Yvector + handLength / 1000, Zvector) },
+
+
         ];
 
 
         const keys2 = [
+            // { frame: 0, value: startPosition },
+            // { frame: 15, value: midPossition },
+
+            // { frame: 30, value: new Vector3(handLength / 22 - 2, -2.3, 5) },
+
             { frame: 0, value: startPosition },
             { frame: 15, value: midPossition },
 
-            { frame: 30, value: new Vector3(handLength / 22 - 2, -2.3, 5) },
+            { frame: 30, value: new Vector3(0 + index / 2, -2.3, 5) },
         ];
 
         if (who === "dealerHand")

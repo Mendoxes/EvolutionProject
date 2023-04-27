@@ -56,7 +56,8 @@ export type GameState = {
   tokens: number;
   playerScores?: number[];
   hands?: number[];
-  winner?: "player" | "dealer" | "tie";
+  // winner?: "player" | "dealer" | "tie";
+  winner?: number[] | string[];
   bet?: number;
   limit?: number;
 };

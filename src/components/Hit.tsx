@@ -1,7 +1,7 @@
 import { toJS } from 'mobx';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import CounterContext, { GameStore } from '../store/store';
-import { hit, stand } from '../utilities/canvas';
+import { checkCamera2, hit, stand } from '../utilities/canvas';
 import { getChipColor } from '../utilities/OverlayUtil';
 
 function Hit(props: any)
@@ -44,18 +44,6 @@ function Hit(props: any)
         setAble(newItems);
     }
 
-
-
-
-    function check()
-    {
-        console.log(hitAble)
-        console.log(standAble)
-        console.log(handState)
-        console.log(busted)
-        console.log(props)
-
-    }
 
     const counterStore: GameStore = useContext(CounterContext);
     const numDivs = counterStore.playerHands;
@@ -110,10 +98,7 @@ function Hit(props: any)
     useEffect(() =>
     {
 
-        console.log(hitAble)
-        console.log(standAble)
-        console.log(handState)
-        console.log(busted)
+
 
         const allFalse = handState.every(value => value === false);
         const standFalse = standAble.every(value => value === false);
@@ -121,17 +106,17 @@ function Hit(props: any)
         if (standFalse)
         {
             stand(props.props, counterStore, props.state)
-            console.log("all stand")
+
 
         }
         if (allFalse && !standFalse)
         {
             if (busted.length > 0 && !bustedFalse)
             {
-                console.log(bustedFalse)
+
 
                 hit(props.props, counterStore)
-                console.log('All values in hitAble are false.');
+
                 const n = counterStore.playerHands.length;
                 const hitAbleArray = Array(n).fill(true);
                 setHitAble(hitAbleArray);
@@ -146,30 +131,38 @@ function Hit(props: any)
 
 
 
+    function consoleloging()
+    {
+
+        console.log(toJS(counterStore.gameState?.playerScores)
+        )
+        console.log(hitAble)
+        console.log(standAble)
+        console.log(handState)
+        console.log(toJS(counterStore.gameState?.hands))
+    }
+
     const divs = [];
     for (let i = 1; i < numDivs.length + 1; i++)
     {
 
-        divs.push(<div key={i}>
+        divs.push(<div className='ok' key={i}>
 
             {busted[i - 1] ? <div> {handState[i - 1] ? <div className='hitOrStand'>
-                <button style={{ fontSize: "40px", color: "white" }} onClick={() => hitPLayer(counterStore.playerHands[i - 1], i - 1)} className="player_Spot, green">Hit </button>
-                {standAble[i - 1] ? <button style={{ fontSize: "40px", color: "white" }} onClick={() => standPLayer(i - 1)} className="player_Spot, red">Stand </button> :
+                <button style={{ fontSize: "30px", color: "white" }} onClick={() => hitPLayer(counterStore.playerHands[i - 1], i - 1)} className="player_Spot green">Hit </button>
+                {standAble[i - 1] ? <button style={{ fontSize: "30px", color: "white" }} onClick={() => standPLayer(i - 1)} className="player_Spot red">Stand </button> :
                     <div className='handDone'>Current score : 21</div>
                 }
             </div> :
 
-                !hitAble[i - 1] ? <div className='handHit'>Hand is begin hit</div> : <div className='handDone'>Hand is done</div>}
+                !hitAble[i - 1] ? <div className='handHit'>Awaiting Card<span className="dots">...</span></div> : <div className='handDone'>Hand is done</div>}
 
 
             </div> : <div className='busted'>Busted</div>}
 
 
-            <p className='currentHand'>Current Hand {i} bet:{counterStore.tokentsFromHand[i - 1]}$</p>
-            {/* <button onClick={check}>do something</button> */}
-            {/* <p>Current Hand [i] score: {counterStore.gameState?.playerScores![i - 1]}</p>
-            <button onClick={check}>do something</button> */}
-            {/* <button onClick={() => hit(props.props, counterStore)} className="hit-button">Hit</button> */}
+            <p onClick={() => checkCamera2(props.props, counterStore.gameState?.hands![i - 1] as number)} style={{ margin: "0" }} className='currentHand'>Current Hand {i} bet:{counterStore.tokentsFromHand[i - 1]}$</p>
+
         </div>
 
 
@@ -180,6 +173,7 @@ function Hit(props: any)
     return (
         <div className='navbar_bottom'>
             {divs}
+
         </div>
     );
 }

@@ -33,7 +33,7 @@ export const createGame = async (req: express.Request, res: express.Response) =>
   }
 
   const dealerHand = dealCards(deck, 1);
-  const tokens = req.body.tokens !== undefined ? req.body.tokens : 1000;
+  const tokens = req.body._gameState.tokens !== undefined ? req.body._gameState.tokens : 1000;
 
   const gameState = {
     playerHands,

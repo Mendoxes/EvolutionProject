@@ -50,6 +50,7 @@ import AC from '../assets/cards/A-C.png';
 import AD from '../assets/cards/A-D.png';
 import AH from '../assets/cards/A-H.png';
 import AS from '../assets/cards/A-S.png';
+import Back from '../assets/cards/BACK.png';
 
 export const cards: { [key: string]: string } = {
     '2-C': C2C,
@@ -104,6 +105,7 @@ export const cards: { [key: string]: string } = {
     'Q-S': QS,
     'K-S': KS,
     'A-S': AS,
+    'back': Back
 };
 
 
