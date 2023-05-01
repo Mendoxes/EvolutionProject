@@ -1,23 +1,18 @@
-import { Engine, Scene, FreeCamera, Vector3, HemisphericLight, MeshBuilder, StandardMaterial, Color3, Texture, ActionManager, ExecuteCodeAction, Mesh, DynamicTexture, FollowCamera, SceneLoader, Space, CubeTexture, PointLight, DirectionalLight, SpotLight, Animation, ArcRotateCamera } from "@babylonjs/core"
 import "@babylonjs/loaders";
-import { toJS } from 'mobx';
 import React, { useContext, useEffect, useState } from 'react';
 import CounterContext, { GameStore } from '../store/store';
-import { getChipsFromTokens } from '../utilities/canvas';
 import { getChipColor } from '../utilities/OverlayUtil';
 
 function HandSpots(props: any)
 {
 
 
-
     const chipClass = 'player_Spot'
-    // const [gamePhase, setGamePhase] = useState(false);
     const [chipColor, setChipColor] = useState("defaultColor");
     const [disabled, setDisabled] = useState(true);
     const [puble, setPuble] = useState("active_button");
 
-
+    const [shouldAnimate, setShouldAnimate] = useState(false);
 
 
 
@@ -27,30 +22,50 @@ function HandSpots(props: any)
         await counterStore.setTokensChangeOnWinOrLoss(x);
 
         props.state(!props.phase);
-        // setGamePhase(!gamePhase);
-
 
     }
     let chipName = "Black"
 
-    // let value = 500;
-
-    // console.log(chipName)
 
     function addHand(x: number): void
     {
 
-        console.log(counterStore.tokentsFromHand)
-        counterStore.setPlayerHands(x);
+        const numDivs = counterStore.tokentsFromHand
+        const sum = numDivs.reduce((accumulator, currentValue) =>
+        {
+            return accumulator + currentValue;
+        }, 0);
 
-        addChips(props.chips)
+        if (sum + props.chips <= counterStore.gameState!.tokens)
+        {
 
-        setChipColor(getChipColor(props.chips))
-        chipName = getChipColor(props.chips);
+            console.log(counterStore.tokentsFromHand)
+            counterStore.setPlayerHands(x);
 
-        counterStore.setTokensFromHand(props.chips, x - 1);
+            addChips(props.chips)
 
-        // createAllInstances(props.scene);
+            setChipColor(getChipColor(props.chips))
+            chipName = getChipColor(props.chips);
+            console.log(props.chips)
+            counterStore.setTokensFromHand(props.chips, x - 1);
+            setShouldAnimate(false);
+
+        }
+
+        else
+        {
+            console.log("nono");
+            const button = document.querySelector(`.betButton:nth-child(${x}) button`);
+            button?.classList.add("red-border");
+            setTimeout(() =>
+            {
+                button?.classList.remove("red-border");
+            }, 1000);
+        }
+
+
+
+
 
 
 
@@ -70,7 +85,7 @@ function HandSpots(props: any)
 
 
     const counterStore: GameStore = useContext(CounterContext);
-    //   const { x } = props.gameState.player;
+
     const numDivs = counterStore.tokentsFromHand
 
 
@@ -79,10 +94,10 @@ function HandSpots(props: any)
     for (let i = 1; i < numDivs.length + 1; i++)
     {
         divs.push(<div className="betButton" key={i}>
-            {/* <button id='ten' onClick={() => addHand(i)} className="betting-Chip">P1</button>
-            <div id='fifty' onClick={() => addHand(i)} className="betting-Chip">P2</div> */}
-            <button disabled={disabled} onClick={() => addHand(i)} className={`${chipClass} ${puble} ${chipColor} `}>Bet {props.chips}$ </button>
-            <p className='currentHand'>Current Hand {i} bet:{counterStore.tokentsFromHand[i - 1]}$</p>
+
+            <button disabled={disabled} onClick={() => addHand(i)} className={`${chipClass} ${puble} ${chipColor} ${shouldAnimate ? "red-border" : ""
+                } `}>Bet {props.chips}$ </button>
+            <p className='currentHand'>Bet:{counterStore.tokentsFromHand[i - 1]}$</p>
 
         </div>);
     }
@@ -90,9 +105,7 @@ function HandSpots(props: any)
     return (
         <div className='navbar_bottomClick'>
             {divs}
-            {/* <button onClick={() => createAllInstances(props.scene)}>Add instance</button>
-            <button onClick={disposeInstances}>Dispose</button>
-            <button onClick={createTokens}>Create tokens</button> */}
+
         </div>
     );
 }

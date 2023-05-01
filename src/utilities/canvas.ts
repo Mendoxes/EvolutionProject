@@ -1,9 +1,9 @@
 import { Vector3, Animation, Scene, SceneLoader, AbstractMesh, Space, Mesh } from "@babylonjs/core";
-import { Console } from "console";
 import "@babylonjs/loaders";
 import { toJS } from "mobx";
 import { cards } from "../assets/pngCards";
-import { cardInstances, getCards2 } from "../components/canvasUtils/canvasUtils";
+import { cardInstances, createInstanceOfCard } from "../components/canvasUtils/canvasUtils";
+import { chipPositions, player1, player2, player3, vectorY1, vectorY2, vectorY3, vectorZ1, vectorZ2, vectorZ3 } from "../consts/canvas";
 import { GameStore } from "../store/store";
 
 export function a()
@@ -12,18 +12,6 @@ export function a()
 
 }
 
-const player1 = -0.5;
-const dealer = -0.5;
-const player2 = 4;
-const player3 = -5;
-
-const vectorY1 = -2.63;
-const vectorY2 = -2.55;
-const vectorY3 = -2.45;
-
-const vectorZ1 = -0.5;
-const vectorZ2 = 0.8;
-const vectorZ3 = 1;
 
 
 export async function createNewGame(scene: any, counterStore: GameStore, setGameOVer: (arg0: boolean) => void, setBetting: (arg0: boolean) => void, setGameStart: (arg0: boolean) => void): Promise<void>
@@ -43,37 +31,83 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
             instance = null;
 
         });
-        getCards2(counterStore, scene, cards, "dealerHand", 0, player1 + 0.95, vectorY1, vectorY1, 0)
+        createInstanceOfCard(counterStore, scene, cards, "dealerHand", 0, player1 + 0.95, vectorY1, vectorY1, 0, 0)
 
 
         for (let i = 0; i < counterStore.gameState.hands!.length; i++)
         {
+
+
             setTimeout(() =>
             {
                 console.log(counterStore.gameState!.hands![i])
                 if (counterStore.gameState!.hands![i] === 2)
                 {
 
-                    getCards2(counterStore, scene, cards, "playerHands", i, player1 + 0.95, vectorY1, vectorZ1, 0)
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player1 + 0.95, vectorY1, vectorZ1, 0, 1)
                 }
 
 
                 if (counterStore.gameState!.hands![i] === 1)
                 {
 
-                    getCards2(counterStore, scene, cards, "playerHands", i, player2 + 0.95, vectorY2, vectorZ2, 2.65)
+
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player2 + 0.95, vectorY2, vectorZ2, 2.65, 1)
                 }
 
 
                 if (counterStore.gameState!.hands![i] === 3)
                 {
 
-                    getCards2(counterStore, scene, cards, "playerHands", i, player3 + 0.95, vectorY3, vectorZ3, -2.6)
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player3 + 0.95, vectorY3, vectorZ3, -2.6, 1)
+
                 }
 
 
             }, 500 * i)
+
         }
+
+        for (let i = 0; i < counterStore.gameState.hands!.length; i++)
+        {
+
+
+            setTimeout(() =>
+            {
+                console.log(counterStore.gameState!.hands![i])
+                if (counterStore.gameState!.hands![i] === 2)
+                {
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player1 + 0.95, vectorY1, vectorZ1, 0, 0)
+
+                }
+
+
+                if (counterStore.gameState!.hands![i] === 1)
+                {
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player2 + 0.95, vectorY2, vectorZ2, 2.65, 0)
+
+
+                }
+
+
+                if (counterStore.gameState!.hands![i] === 3)
+                {
+
+                    createInstanceOfCard(counterStore, scene, cards, "playerHands", i, player3 + 0.95, vectorY3, vectorZ3, -2.6, 0)
+
+
+                }
+
+
+            }, 1000 * i + 500 * counterStore.gameState!.hands!.length)
+        }
+
+
 
 
         setBetting(false);
@@ -82,6 +116,7 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
 
 
     }
+
 }
 
 
@@ -112,19 +147,13 @@ export async function hit(scene: any, counterStore: GameStore): Promise<void>
 {
 
 
-    console.log(counterStore)
+
     if (counterStore.gameState != null)
     {
         if (!counterStore.gameState?.gameOver)
         {
             await counterStore.hit();
             const newLimit = counterStore._limit
-
-            // console.log(toJS(counterStore._limit))
-
-
-
-            // for (let i = 0; i < counterStore.gameState.hands!.length; i++)
             for (let i = 0; i < newLimit.length; i++)
             {
 
@@ -149,7 +178,7 @@ export async function hit(scene: any, counterStore: GameStore): Promise<void>
                     {
 
 
-                        getCards2(counterStore, scene, cards, "playerHands", index, player1 + 0.95, vectorY1, vectorZ1, 0)
+                        createInstanceOfCard(counterStore, scene, cards, "playerHands", index, player1 + 0.95, vectorY1, vectorZ1, 0, 0)
                     }
 
                     if (newLimit[i] === 1)
@@ -157,13 +186,13 @@ export async function hit(scene: any, counterStore: GameStore): Promise<void>
 
 
 
-                        getCards2(counterStore, scene, cards, "playerHands", index, player2 + 0.95, vectorY2, vectorZ2, 2.6)
+                        createInstanceOfCard(counterStore, scene, cards, "playerHands", index, player2 + 0.95, vectorY2, vectorZ2, 2.6, 0)
                     }
 
                     if (newLimit[i] === 3)
                     {
 
-                        getCards2(counterStore, scene, cards, "playerHands", index, player3 + 0.95, vectorY3, vectorZ3, -2.6)
+                        createInstanceOfCard(counterStore, scene, cards, "playerHands", index, player3 + 0.95, vectorY3, vectorZ3, -2.6, 0)
                     }
 
 
@@ -175,8 +204,6 @@ export async function hit(scene: any, counterStore: GameStore): Promise<void>
         }
 
     }
-
-    // setBetting(false)
 
     counterStore._limit = [];
 }
@@ -197,27 +224,19 @@ export async function stand(scene: any, counterStore: GameStore, setGameStart: (
 
                 await counterStore.stand();
 
-                console.log(counterStore.gameState.dealerScore)
-                // getCards2(counterStore, scene, cards, "dealerHand", 0, player1 + 0.95, vectorY1, 0)
-
-                // getCards2(counterStore, scene, cards, "dealerHand")
-                // getCards2(counterStore, scene, cards, "dealerHand", 1, player3 + 0.95, vectorY3, -2.6)
 
             }
 
         for (let i = 1; i < counterStore.gameState?.dealerHand.length!; i++)
         {
 
-            console.log(counterStore.gameState?.dealerHand.length!)
-            console.log(i)
 
-
-            getCards2(counterStore, scene, cards, "dealerHand", i, player1 + 0.95, vectorY1, vectorZ1, 0)
+            createInstanceOfCard(counterStore, scene, cards, "dealerHand", i, player1 + 0.95, vectorY1, vectorZ1, 0, 0)
 
         }
     }
 
-    // setBetting(false)
+
 
 
 
@@ -232,44 +251,60 @@ export async function addChips(x: number, counterStore: GameStore): Promise<void
 }
 
 
-// export function burn(sceneState: any, cardInstances: any)
-// {
 
-//     if (sceneState !== null)
-//         setTimeout(() =>
-//         {
-//             sceneState!.beginAnimation(cardInstances, 0, 30, false);
-//             burnCards(cardInstances, sceneState); // Call the burnCards function here
-//         }, 500);
-// }
+
 
 export function checkCamera(sceneState: any)
 {
     if (sceneState && sceneState.activeCamera)
     {
-        // Get the current camera and its position
+
         const camera = sceneState.activeCamera;
         const prevCameraPosition = camera.position.clone();
 
-        // Create the target position for the camera
-        const targetPosition = new Vector3(0, 4, -13);
+
+        // const targetPosition = new Vector3(0, 4, -13);
 
 
-        // Stop any existing animations on the camera
-        camera.animations = [];
+        // camera.animations = [];
+
+        let targetPosition: Vector3;
+
+        /* Small Mobile */
+
+        if (window.innerWidth < 401)
+        {
+
+            targetPosition = new Vector3(0, 19, -17);
+        }
+        /* Mobile */
+        else if (window.innerWidth < 768)
+        {
+            targetPosition = new Vector3(0, 14, -15);
+        }
+        /* Tablet */
+        else if (window.innerWidth >= 768 && window.innerWidth < 1024)
+        {
+            targetPosition = new Vector3(0, 4, -13);
+        }
+        /* Desktop */
+        else
+        {
+            targetPosition = new Vector3(0, 4, -13);
+        }
 
 
-        // Create the animation to move the camera from the previous position to the new position
+
         const animation = new Animation("cameraAnimation", "position", 30, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
         const animationKeys = [];
         animationKeys.push({ frame: 0, value: prevCameraPosition });
         animationKeys.push({ frame: 30, value: targetPosition.clone() });
         animation.setKeys(animationKeys);
 
-        // Add the new animation to the camera's animations array
+
         camera.animations.push(animation);
 
-        // Start the animation and set the camera's position to the target position in the callback function
+
         sceneState.beginAnimation(camera, 0, 30, false, undefined, () =>
         {
             camera.position = targetPosition.clone();
@@ -279,19 +314,13 @@ export function checkCamera(sceneState: any)
 }
 
 
+
+
 export function checkCamera3(sceneState: any)
 {
     if (sceneState && sceneState.activeCamera)
     {
-        // Get the current camera and its position
         const camera = sceneState.activeCamera;
-        const prevCameraPosition = camera.position.clone();
-
-        // Create the target position for the camera
-        const targetPosition = new Vector3(0, 4, -13);
-
-
-        // Stop any existing animations on the camera
         camera.animations = [];
         camera.setTarget(new Vector3(0, -10, 12));
 
@@ -324,7 +353,7 @@ export function checkCamera3(sceneState: any)
 
         sceneState.beginAnimation(camera, 0, numFrames, true);
 
-        // Start the animation and set the camera's position to the target position in the callback function
+
 
 
     }
@@ -336,11 +365,11 @@ export function checkCamera2(sceneState: any, position: Number)
 {
     if (sceneState && sceneState.activeCamera)
     {
-        // Get the current camera and its position
+
         const camera = sceneState.activeCamera;
         const prevCameraPosition = camera.position.clone();
 
-        // Create the target position for the camera
+
         let targetPosition: any;
         if (position === 1)
         {
@@ -350,7 +379,7 @@ export function checkCamera2(sceneState: any, position: Number)
         {
 
             targetPosition = new Vector3(0, 1, -9);
-            // targetPosition = new Vector3(0, 2, -8);
+
         }
         else if (position === 3)
         {
@@ -358,22 +387,17 @@ export function checkCamera2(sceneState: any, position: Number)
             targetPosition = new Vector3(9, 2.5, -7);
         }
 
-
-        // Stop any existing animations on the camera
         camera.animations = [];
-        // camera.setTarget(new Vector3(0, -10, 12));
 
-        // Create the animation to move the camera from the previous position to the new position
         const animation = new Animation("cameraAnimation", "position", 30, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
         const animationKeys = [];
         animationKeys.push({ frame: 0, value: prevCameraPosition });
         animationKeys.push({ frame: 30, value: targetPosition.clone() });
         animation.setKeys(animationKeys);
 
-        // Add the new animation to the camera's animations array
+
         camera.animations.push(animation);
 
-        // Start the animation and set the camera's position to the target position in the callback function
         sceneState.beginAnimation(camera, 0, 30, false, undefined, () =>
         {
             camera.position = targetPosition.clone();
@@ -389,28 +413,6 @@ export function getChipsFromTokens(tokens: number): { ten: number, fifty: number
     let chipObject = { ten: 0, fifty: 0, hung: 0, fivehung: 0 };
     let token = tokens;
 
-    // if (token > 40)
-    // {
-    //     chipObject.ten = 5;
-    //     token = token - 50;
-    // }
-
-    // if (token > 40)
-    // {
-
-    //     chipObject.fifty = 1;
-    //     token = token - 50;
-
-    // }
-
-    // if (token > 90)
-    // {
-    //     chipObject.hung = 1;
-    //     token = token - 100;
-    // }
-
-
-    // console.log(token)
 
     if (token >= 500)
     {
@@ -448,7 +450,7 @@ export function getChipsFromTokens(tokens: number): { ten: number, fifty: number
 
 
 
-export function createTokensOnTable(scene: Scene)
+export function createTokensOnTable(scene: Scene, loaded: boolean[])
 {
 
 
@@ -485,6 +487,9 @@ export function createTokensOnTable(scene: Scene)
                 newInstance.position.z = 5.5 + i / 5;
             }
         }
+
+
+
         mainObject.dispose();
     });
 
@@ -604,4 +609,47 @@ export function createTokensOnTable(scene: Scene)
         }
         mainObject.dispose();
     });
+
+
+    loaded[1] = true;
+}
+
+
+
+export function createChipStacks(tokenNumbers: { [key: string]: number }, index: number, scene: Scene, createInstance: (loaderType: string, modelPath: string, scene: Scene, position?: Vector3 | null, scaling?: Vector3 | null) => void,)
+{
+
+    for (const [key, value] of Object.entries(tokenNumbers))
+    {
+
+
+        for (let i = 0; i < value; i++)
+        {
+
+            if (key === "ten")
+            {
+
+
+                createInstance(key, `${key}.glb`, scene, new Vector3(chipPositions[index].ten.xpos, chipPositions[index].ten.ypoz + tokenNumbers[key] / 5 - i / 10, chipPositions[index].ten.zpos), null);
+
+            } else if (key === "fifty")
+            {
+                createInstance(key, `${key}.glb`, scene, new Vector3(chipPositions[index].fifty.xpos, chipPositions[index].fifty.ypoz + tokenNumbers[key] / 5 - i / 10, chipPositions[index].fifty.zpos), null);
+
+            }
+
+            else if (key === "hung")
+            {
+                createInstance(key, `${key}.glb`, scene, new Vector3(chipPositions[index].hung.xpos, chipPositions[index].hung.ypoz + tokenNumbers[key] / 5 - i / 10, chipPositions[index].hung.zpos), null);
+
+            }
+
+
+            else
+            {
+
+                createInstance(key, `${key}.glb`, scene, new Vector3(chipPositions[index].fivehung.xpos, chipPositions[index].fivehung.ypoz + tokenNumbers[key] / 5 - i / 10, chipPositions[index].fivehung.zpos), null);
+            }
+        }
+    }
 }

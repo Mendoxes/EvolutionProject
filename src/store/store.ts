@@ -14,7 +14,7 @@ export class GameStore
 
   private _gameState: GameState | null = null;
   private _tokensChangeOnWinOrLoss = 0;
-  private _tokentsFromHand = [0, 0, 0]
+  public _tokentsFromHand = [0, 0, 0]
   public _prevTokentsFromHand = [0, 0, 0]
   private _bank = 0;
   public _playerHands: number[] = [];

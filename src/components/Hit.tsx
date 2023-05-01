@@ -2,7 +2,8 @@ import { toJS } from 'mobx';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import CounterContext, { GameStore } from '../store/store';
 import { checkCamera2, hit, stand } from '../utilities/canvas';
-import { getChipColor } from '../utilities/OverlayUtil';
+import miniCamera from "../assets/mini-camera.png"
+import { disableButtonStyle } from '../consts/canvas';
 
 function Hit(props: any)
 {
@@ -11,6 +12,7 @@ function Hit(props: any)
     const [standAble, setStandAble] = useState([true]);
     const [handState, setHandState] = useState([true, true, true])
     const [busted, setBusted] = useState<boolean[]>([]);
+    const [disabled, setDisabled] = useState<boolean>(false)
 
 
 
@@ -18,15 +20,9 @@ function Hit(props: any)
     {
 
 
-        // const score = counterStore.gameState?.playerScores!
         counterStore.setLimit(x)
         handleBoolean(y, hitAble, setHitAble, false)
         handleBoolean(y, handState, setHandState, false)
-
-
-
-
-
     }
 
 
@@ -34,7 +30,7 @@ function Hit(props: any)
     {
         handleBoolean(x, standAble, setStandAble, false)
         handleBoolean(x, handState, setHandState, false)
-        // handleBoolean(x, hitAble, setHitAble, false)
+
     }
 
     function handleBoolean(index: number, able: any, setAble: any, bool: boolean)
@@ -67,7 +63,7 @@ function Hit(props: any)
     useEffect(() =>
     {
         const scores = counterStore.gameState?.playerScores || [];
-        const lastBustedIndex = scores.map(score => score > 21 ? false : true);
+        const lastBustedIndex = scores.map(score => score >= 21 ? false : true);
         setBusted(lastBustedIndex);
     }, [counterStore.gameState?.playerScores]);
 
@@ -122,7 +118,7 @@ function Hit(props: any)
                 setHitAble(hitAbleArray);
 
                 setHandState(standAble)
-                // setHitAble(hitAble.map((value, index) => !value))
+
             }
         }
 
@@ -131,26 +127,29 @@ function Hit(props: any)
 
 
 
-    function consoleloging()
+    function doubleChips(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, token: number, index: number)
     {
-
-        console.log(toJS(counterStore.gameState?.playerScores)
-        )
-        console.log(hitAble)
-        console.log(standAble)
-        console.log(handState)
-        console.log(toJS(counterStore.gameState?.hands))
+        counterStore.setTokensFromHand(token, index);
+        const button = event.currentTarget;
+        button.disabled = true;
+        Object.assign(button.style, disableButtonStyle);
+        setDisabled(!disabled);
+        counterStore._prevTokentsFromHand = [...counterStore.tokentsFromHand];
     }
+
+
 
     const divs = [];
     for (let i = 1; i < numDivs.length + 1; i++)
     {
+        const BustOrBlackjack = counterStore.gameState!.playerScores![i - 1] > 21 ? true : false
+        const playerHandEqual2 = counterStore.gameState!.playerHands![i - 1].length === 2 ? true : false
 
         divs.push(<div className='ok' key={i}>
 
             {busted[i - 1] ? <div> {handState[i - 1] ? <div className='hitOrStand'>
-                <button style={{ fontSize: "30px", color: "white" }} onClick={() => hitPLayer(counterStore.playerHands[i - 1], i - 1)} className="player_Spot green">Hit </button>
-                {standAble[i - 1] ? <button style={{ fontSize: "30px", color: "white" }} onClick={() => standPLayer(i - 1)} className="player_Spot red">Stand </button> :
+                <button style={{ color: "white" }} onClick={() => hitPLayer(counterStore.playerHands[i - 1], i - 1)} className="player_Spot green">Hit </button>
+                {standAble[i - 1] ? <button style={{ color: "white" }} onClick={() => standPLayer(i - 1)} className="player_Spot red">Stand </button> :
                     <div className='handDone'>Current score : 21</div>
                 }
             </div> :
@@ -158,10 +157,15 @@ function Hit(props: any)
                 !hitAble[i - 1] ? <div className='handHit'>Awaiting Card<span className="dots">...</span></div> : <div className='handDone'>Hand is done</div>}
 
 
-            </div> : <div className='busted'>Busted</div>}
+            </div> : <div >{BustOrBlackjack ? <div className='busted'>Busted</div> : <div className='blackjack'>BlackJack</div>}</div>}
 
 
-            <p onClick={() => checkCamera2(props.props, counterStore.gameState?.hands![i - 1] as number)} style={{ margin: "0" }} className='currentHand'>Current Hand {i} bet:{counterStore.tokentsFromHand[i - 1]}$</p>
+
+            <div style={{ display: 'flex', alignItems: 'center' }} className='currentHand actionCurrentHand'>
+                <span style={{ flex: 1, textAlign: 'center' }}>{counterStore.tokentsFromHand[i - 1]}$   {playerHandEqual2 && <button className='golden-btn' onClick={(event) => doubleChips(event, counterStore.tokentsFromHand[i - 1], i - 1)}>2X</button>}</span>
+
+                <img onClick={() => checkCamera2(props.props, counterStore.gameState?.hands![i - 1] as number)} style={{ width: "20px", marginLeft: '5px' }} src={miniCamera} alt="camera" />
+            </div>
 
         </div>
 

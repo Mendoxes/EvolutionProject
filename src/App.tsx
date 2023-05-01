@@ -1,17 +1,18 @@
 import React from 'react';
-import {Provider} from 'mobx-react';
-import { GameStore} from './store/store';
+import { Provider } from 'mobx-react';
+import { GameStore } from './store/store';
 import './App.css';
-import CardF from './components/Card';
+import { StoreObserver } from './components/Card';
 
-function App() {
+function App()
+{
   return (
 
     <Provider store={GameStore}>
-    <div className="App">
-<CardF></CardF>
-  
-    </div>
+      <div className="App">
+        <StoreObserver></StoreObserver>
+
+      </div>
     </Provider>
   );
 }

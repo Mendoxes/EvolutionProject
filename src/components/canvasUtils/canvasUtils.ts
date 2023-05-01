@@ -1,5 +1,4 @@
-import { MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Animation, AnimationGroup, EasingFunction, Material, Mesh, ParticleSystem, Color4 } from "babylonjs";
-import { toJS } from "mobx";
+import { MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Animation, Mesh } from "babylonjs";
 import { GameStore } from "../../store/store";
 import { Card, Rank } from "../../types";
 import { getSuitFromValue } from "../../utilities";
@@ -7,10 +6,10 @@ import { getSuitFromValue } from "../../utilities";
 
 
 
-export const cardInstances: any = [];
+export const cardInstances: Mesh[] = [];
 
 
-export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: string]: string }, who: "playerHands" | "dealerHand", index: number, Xvector: number, Yvector: number, Zvector: number, skew: number)
+export function createInstanceOfCard(counterStore: GameStore, scene: Scene, cards: { [key: string]: string }, who: "playerHands" | "dealerHand", index: number, Xvector: number, Yvector: number, Zvector: number, skew: number, cardPos: number)
 {
     const cardMesh = MeshBuilder.CreatePlane("card", { width: 2.5, height: 4.3 }, scene);
     cardMesh.position.y = 0.72;
@@ -18,17 +17,23 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
 
     if (counterStore.gameState !== null)
     {
-
         let handLength;
-
-        // const handLength = counterStore.gameState[who][index].length;
-
         let newCard: Card;
 
         if (who === "playerHands")
         {
-            handLength = counterStore.gameState[who][index].length;
-            newCard = counterStore.gameState[who][index][handLength - 1];
+
+            if (cardPos === 0)
+            {
+                handLength = counterStore.gameState[who][index].length;
+                newCard = counterStore.gameState[who][index][handLength - 1];
+            }
+
+            else
+            {
+                handLength = counterStore.gameState[who][index].length - 1;
+                newCard = counterStore.gameState[who][index][0];
+            }
         }
 
         else
@@ -42,17 +47,8 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
 
         }
 
-        // const newCard: Card = counterStore.gameState[who][index][handLength - 1];
-        const rank = newCard.rank;
-
         const suit = getSuitFromValue(newCard.suit);
         const cardMaterial = new StandardMaterial("cardMat", scene);
-        // cardMaterial.backFaceCulling = false;
-
-
-
-        // create a mesh and apply the material to it
-
 
         if (newCard.rank < 9)
         {
@@ -62,8 +58,7 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
             cardMaterial.diffuseTexture = new Texture(cards[`${Rank[newCard.rank]}-${suit}`], scene);
         }
 
-        // let cardInstance = cardMesh.clone(`card-${handLength - 1}-${who}`)
-        let cardInstance: any;
+        let cardInstance: Mesh;
 
         if (who === "playerHands")
         {
@@ -75,18 +70,13 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
             cardInstance = cardMesh.clone(`card-${index}-${who}`)
 
         }
-
-
-
-
         cardInstance.material = cardMaterial;
         const startPosition = new Vector3(-5, -2, 9);
         const midPossition = new Vector3(-4, 0, 4);
 
         if (who === "dealerHand")
         {
-            // cardInstance.position.y = 0.05;
-            // cardInstance.position.x = 22;
+
             cardInstance.position.y = 0.12;
             cardInstance.position.z = -3.5;
             cardInstance.position.x = 22;
@@ -101,8 +91,6 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
         cardInstance.position.copyFrom(startPosition);
 
         cardInstance.rotation = new Vector3(Math.PI / -2, 0, 0);
-
-        const endPosition = new Vector3(22, cardInstance.position.y, cardInstance.position.z);
         cardInstance.position.copyFrom(startPosition);
         cardInstance.rotation = new Vector3(Math.PI / -2, 0, 0);
         cardInstances.push(cardInstance)
@@ -119,10 +107,7 @@ export function getCards2(counterStore: GameStore, scene: Scene, cards: { [key: 
 
 
         const keys2 = [
-            // { frame: 0, value: startPosition },
-            // { frame: 15, value: midPossition },
 
-            // { frame: 30, value: new Vector3(handLength / 22 - 2, -2.3, 5) },
 
             { frame: 0, value: startPosition },
             { frame: 15, value: midPossition },
