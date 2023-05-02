@@ -940,7 +940,7 @@ opacity: 1;
 .repeat {
   width: 60px;
   height: 60px;
-  background: radial-gradient(ellipse at center, #254285 0%, #5e7dd7 25%, #1a63a1 50%, #222052 75%, #ffffff 100%);
+  background: radial-gradient(ellipse at center, #254285 0%, #5e7dd7 25%, #1a62a100 50%, #22205200 75%, #ffffff 100%);
   color: white;
   border: none;
   border-radius: 50%;

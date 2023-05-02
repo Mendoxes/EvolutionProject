@@ -39,14 +39,14 @@ function HandSpots(props: any)
         if (sum + props.chips <= counterStore.gameState!.tokens)
         {
 
-            console.log(counterStore.tokentsFromHand)
+
             counterStore.setPlayerHands(x);
 
             addChips(props.chips)
 
             setChipColor(getChipColor(props.chips))
             chipName = getChipColor(props.chips);
-            console.log(props.chips)
+
             counterStore.setTokensFromHand(props.chips, x - 1);
             setShouldAnimate(false);
 
@@ -54,7 +54,7 @@ function HandSpots(props: any)
 
         else
         {
-            console.log("nono");
+
             const button = document.querySelector(`.betButton:nth-child(${x}) button`);
             button?.classList.add("red-border");
             setTimeout(() =>

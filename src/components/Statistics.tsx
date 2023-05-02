@@ -87,11 +87,7 @@ export const Statistics = (props: any) =>
                                 const text = won ? "won" : "lost";
                                 const token = won ? "+" : "-";
 
-                                console.log(winners + "winners")
-                                console.log(hands + "hands")
-                                console.log(hand + "hand")
-                                console.log(player + "player")
-                                console.log(won + "won")
+
                                 return (
                                     <tr key={index} style={{ color: "white" }}>
                                         <td>Player {hand}</td>

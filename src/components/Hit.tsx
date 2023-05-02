@@ -112,11 +112,9 @@ function Hit(props: any)
 
 
                 hit(props.props, counterStore)
-
                 const n = counterStore.playerHands.length;
                 const hitAbleArray = Array(n).fill(true);
                 setHitAble(hitAbleArray);
-
                 setHandState(standAble)
 
             }
@@ -143,7 +141,10 @@ function Hit(props: any)
     for (let i = 1; i < numDivs.length + 1; i++)
     {
         const BustOrBlackjack = counterStore.gameState!.playerScores![i - 1] > 21 ? true : false
+        const isDouble = counterStore.gameState!.playerScores![i - 1] >= 21 ? true : false
         const playerHandEqual2 = counterStore.gameState!.playerHands![i - 1].length === 2 ? true : false
+
+
 
         divs.push(<div className='ok' key={i}>
 
@@ -162,7 +163,7 @@ function Hit(props: any)
 
 
             <div style={{ display: 'flex', alignItems: 'center' }} className='currentHand actionCurrentHand'>
-                <span style={{ flex: 1, textAlign: 'center' }}>{counterStore.tokentsFromHand[i - 1]}$   {playerHandEqual2 && <button className='golden-btn' onClick={(event) => doubleChips(event, counterStore.tokentsFromHand[i - 1], i - 1)}>2X</button>}</span>
+                <span style={{ flex: 1, textAlign: 'center' }}>{counterStore.tokentsFromHand[i - 1]}$   {playerHandEqual2 && !isDouble && <button className='golden-btn' onClick={(event) => doubleChips(event, counterStore.tokentsFromHand[i - 1], i - 1)}>2X</button>}</span>
 
                 <img onClick={() => checkCamera2(props.props, counterStore.gameState?.hands![i - 1] as number)} style={{ width: "20px", marginLeft: '5px' }} src={miniCamera} alt="camera" />
             </div>

@@ -1,7 +1,5 @@
 export function a()
 {
-
-
 }
 
 enum ChipValue

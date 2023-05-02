@@ -4,13 +4,15 @@ import "@babylonjs/loaders";
 import { cards } from '../assets/pngCards';
 import CounterContext, { GameStore } from '../store/store';
 import '../App.css'
-import { checkCamera, checkCamera3, createChipStacks, createNewGame, createTokensOnTable, disposeCards, getChipsFromTokens, hit, readyTable } from '../utilities/canvas';
+import { ChangeCamera, checkCamera, checkCamera3, createChipStacks, createNewGame, createTokensOnTable, disposeCards, getChipsFromTokens, hit, readyTable } from '../utilities/canvas';
 import Navbar from './navbar';
 import HandSpots from './handSpots';
 import Hit from './Hit';
 import { Statistics } from './Statistics';
 import { mountedStyle, unmountedStyle } from '../consts/canvas';
-import repeatIcon from '../assets/repeat.png';
+import repeatIcon from '../assets/repeat2.png';
+import ChipSelector from './ChipSelector';
+
 
 let clonedMeshes: any = [];
 
@@ -173,7 +175,10 @@ export default function Canvas()
                 }, 1500);
             };
 
-            scene.beginAnimation(camera, 0, numFrames, true, undefined, onAnimationStart);
+            scene.beginAnimation(camera, 0, numFrames, true, undefined);
+
+
+            onAnimationStart();
 
             SceneLoader.ImportMesh("", "./", "tabel7.glb", scene, (newMeshes) =>
             {
@@ -247,8 +252,26 @@ export default function Canvas()
 
     }, []);
 
+    let currentView = 1; // initialize current view to 1
+    let prevView = 3; // initialize previous view to 3
 
+    document.addEventListener("keypress", (event) =>
+    {
+        if (event.key === "c" || event.key === "C")
+        {
+            // update current and previous views
+            if (currentView <= 3)
+            {
+                currentView = currentView + 1;
+            }
+            else
+            {
 
+                currentView = 1;
+            }
+            ChangeCamera(sceneState, currentView, prevView);
+        }
+    });
 
     useEffect(() =>
     {
@@ -279,10 +302,11 @@ export default function Canvas()
         createAllInstances(sceneState, 1);
         createAllInstances(sceneState, 2);
         createNewGame(sceneState, counterStore, setGameOVer, setBetting, setGameStart)
-        counterStore._prevTokentsFromHand = [...counterStore.tokentsFromHand];
+
 
         setTimeout(() =>
         {
+            counterStore._prevTokentsFromHand = [...counterStore.tokentsFromHand];
             hit(sceneState, counterStore)
         }, 4000)
     }
@@ -312,13 +336,17 @@ export default function Canvas()
 
 
 
+
     function tableSet()
     {
+
 
         checkCamera(sceneState)
         readyTable(counterStore, setGameStarted)
 
     }
+
+
 
 
 
@@ -350,8 +378,6 @@ export default function Canvas()
 
         for (let i = 1; i < numDivs.length + 1; i++)
         {
-
-
             counterStore.setPlayerHands(i);
             counterStore.setTokensChangeOnWinOrLoss(i);
         }
@@ -361,6 +387,12 @@ export default function Canvas()
         setRefresh(!refreesh)
 
     }
+
+    const numDivs = counterStore._prevTokentsFromHand
+    const sumOfTokens = numDivs.reduce((accumulator, currentValue) =>
+    {
+        return accumulator + currentValue;
+    }, 0);
 
 
 
@@ -389,17 +421,20 @@ export default function Canvas()
             >
                 LOADING .....
             </div>
+
             <canvas ref={canvasRef} style={{ width: '100vw', height: '100vh' }} />
 
 
             <div className={`overlay ${gameStarted ? 'fadeOut' : ''}`}>
+
+
 
                 {counterStore.gameState?.hands && <Navbar></Navbar>}
 
                 {!gameOver && (
                     <div className='margin' style={!gameOver ? mountedStyle : unmountedStyle}>
                         {gameStarted && counterStore.tokentsFromHand[0] | counterStore.tokentsFromHand[1] | counterStore.tokentsFromHand[2] ? <button className="glow" onClick={createGameWithTokens}>Start Game</button> : null}
-                        {!gameStarted && <a className='again' onClick={tableSet}><span className='againSpan'></span>Fast</a>}
+                        {!gameStarted && <a className='again' onClick={tableSet}><span className='againSpan'></span>Start</a>}
 
 
                     </div>
@@ -414,45 +449,15 @@ export default function Canvas()
                 {betting && <div>
 
                     <div className="bar chipSelector" style={{ margin: "2rem" }}>
-                        <button
-                            id='ten'
-                            onClick={() => handleClick('ten', 10)}
-                            className="betting-Chip"
-                            style={{ transform: lastClicked === "ten" ? 'scale(1.2)' : "scale(1)", boxShadow: lastClicked === 'ten' ? '0px 0px 10px rgba(255, 255, 255, 0.5), 0px 0px 20px rgba(255, 255, 255, 0.3), 0px 0px 30px rgba(255, 255, 255, 0.2), 0px 0px 40px rgba(255, 255, 255, 0.1)' : 'none' }}
-                        >
-                            10
-                        </button>
-                        <button
-                            id='fifty'
-                            onClick={() => handleClick('fifty', 50)}
-                            className="betting-Chip"
-                            style={{ scale: lastClicked === "fifty" ? '1.2' : "1", boxShadow: lastClicked === 'fifty' ? '0px 0px 10px rgba(255, 255, 255, 0.5), 0px 0px 20px rgba(255, 255, 255, 0.3), 0px 0px 30px rgba(255, 255, 255, 0.2), 0px 0px 40px rgba(255, 255, 255, 0.1)' : 'none' }}
-                        >
-                            50
-                        </button>
-                        <button
-                            id='hundred'
-                            onClick={() => handleClick('hundred', 100)}
-                            className="betting-Chip"
-                            style={{ scale: lastClicked === "hundred" ? '1.2' : "1", boxShadow: lastClicked === 'hundred' ? '0px 0px 10px rgba(255, 255, 255, 0.5), 0px 0px 20px rgba(255, 255, 255, 0.3), 0px 0px 30px rgba(255, 255, 255, 0.2), 0px 0px 40px rgba(255, 255, 255, 0.1)' : 'none' }}
-                        >
-                            100
-                        </button>
-                        <button
-                            id='fivehundred'
-                            onClick={() => handleClick('fivehundred', 500)}
-                            className="betting-Chip"
-                            style={{ scale: lastClicked === "fivehundred" ? '1.2' : "1", boxShadow: lastClicked === 'fivehundred' ? '0px 0px 10px rgba(255, 255, 255, 0.5), 0px 0px 20px rgba(255, 255, 255, 0.3), 0px 0px 30px rgba(255, 255, 255, 0.2), 0px 0px 40px rgba(255, 255, 255, 0.1)' : 'none' }}
-                        >
-                            500                </button>
-                        <button
+                        <ChipSelector handleClick={handleClick} lastClicked={lastClicked}></ChipSelector>
+                        {sumOfTokens ? <button
 
                             onClick={repeat}
                             className="repeat"
 
                         >
-                            <img style={{ height: "90%", width: "90%" }} src={repeatIcon} alt="camera" />
-                        </button>
+                            <img style={{ height: "90%", width: "100%" }} src={repeatIcon} alt="camera" />
+                        </button> : null}
 
 
 

@@ -4,8 +4,8 @@ import { action, computed, makeAutoObservable, observable, toJS } from "mobx";
 import { createContext } from "react";
 import axios from "axios";
 import { GameState } from '../types';
-// const URL_BASE = 'http://localhost:8088/api';
-const URL_BASE = 'https://servertesttsc.herokuapp.com/api';
+const URL_BASE = 'http://localhost:8088/api';
+// const URL_BASE = 'https://servertesttsc.herokuapp.com/api';
 
 
 
@@ -49,10 +49,6 @@ export class GameStore
     }
   }
 
-  // setPlayerStand: (limit: number) => unknown = (limit: number) =>
-  // {
-  //   this._limit.push(limit);
-  // }
 
   setTokensFromHand: (tokens: number, x: number) => unknown = (tokens: number, x: number) =>
   {
@@ -127,7 +123,7 @@ export class GameStore
     {
       const response = await axios.post(`${URL_BASE}/table`, this.gameState);
       const gameState: GameState = response.data;
-      console.log('Game state:', gameState);
+
       this.setGameState(gameState)
     } catch (error)
     {
@@ -144,7 +140,7 @@ export class GameStore
 
       const response = await axios.post(`${URL_BASE}/game`, this);
       const gameState: GameState = response.data;
-      console.log('Game state:', gameState);
+
       this.setGameState(gameState)
 
     } catch (error)
@@ -165,26 +161,6 @@ export class GameStore
       const response = await axios.post(`${URL_BASE}/hit`, this);
       const gameState: GameState = response.data;
 
-
-      // if (gameState.gameOver && gameState.winner === 'dealer')
-      // {
-
-      //   gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-      //   console.log(this.tokensChangeOnWinOrLoss)
-      //   // this.setTokensChangeOnWinOrLoss(0)
-      //   this._tokensChangeOnWinOrLoss = 0;
-
-      // } else if (gameState.gameOver && gameState.winner === 'player')
-      // {
-
-      //   gameState.tokens = gameState.tokens + this.tokensChangeOnWinOrLoss;
-      //   console.log(this.tokensChangeOnWinOrLoss)
-      //   // this.setTokensChangeOnWinOrLoss(0)
-      //   this._tokensChangeOnWinOrLoss = 0;
-      //   console.log(this.tokensChangeOnWinOrLoss)
-      // }
-
-      // this._limit = [];
       this.setGameState(gameState)
 
     } catch (error)
@@ -207,14 +183,12 @@ export class GameStore
         for (let i = 0; i < gameState.hands?.length!; i++)
         {
           gameState.tokens = gameState.tokens - this._tokentsFromHand[gameState.hands![i] - 1]
-          // this._prevTokentsFromHand[i] = this._tokentsFromHand[i]
+
           this._tokentsFromHand[gameState.hands![i] - 1] = 0;
 
         }
 
-        // gameState.tokens = gameState.tokens - this.tokensChangeOnWinOrLoss;
-        // // this.setTokensChangeOnWinOrLoss(0)
-        // this._tokensChangeOnWinOrLoss = 0;
+
 
       }
 
@@ -224,7 +198,7 @@ export class GameStore
         for (let i = 0; i < gameState.winner.length; i++)
         {
           gameState.tokens = gameState.tokens + this._tokentsFromHand[i]
-          // this._prevTokentsFromHand[i] = this._tokentsFromHand[i]
+
           this._tokentsFromHand[i] = 0;
 
         }
@@ -242,7 +216,7 @@ export class GameStore
         this._tokensChangeOnWinOrLoss = 0;
       }
       this.setGameState(gameState);
-      // this._prevTokentsFromHand = this._tokentsFromHand;
+
 
       this._tokentsFromHand = [0, 0, 0];
     } catch (error)

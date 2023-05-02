@@ -21,7 +21,7 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
     if (counterStore.gameState != null)
     {
 
-        console.log(toJS(counterStore.gameState))
+
         setGameOVer(true);
         setBetting(false);
 
@@ -40,7 +40,7 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
 
             setTimeout(() =>
             {
-                console.log(counterStore.gameState!.hands![i])
+
                 if (counterStore.gameState!.hands![i] === 2)
                 {
 
@@ -77,7 +77,7 @@ export async function createNewGame(scene: any, counterStore: GameStore, setGame
 
             setTimeout(() =>
             {
-                console.log(counterStore.gameState!.hands![i])
+
                 if (counterStore.gameState!.hands![i] === 2)
                 {
 
@@ -159,7 +159,7 @@ export async function hit(scene: any, counterStore: GameStore): Promise<void>
 
                 const a = newLimit[i];
 
-                console.log(newLimit);
+
                 const b = toJS(counterStore.gameState!.hands);
 
                 let index = b!.indexOf(a);
@@ -263,31 +263,28 @@ export function checkCamera(sceneState: any)
         const prevCameraPosition = camera.position.clone();
 
 
-        // const targetPosition = new Vector3(0, 4, -13);
 
-
-        // camera.animations = [];
 
         let targetPosition: Vector3;
 
-        /* Small Mobile */
+
 
         if (window.innerWidth < 401)
         {
 
             targetPosition = new Vector3(0, 19, -17);
         }
-        /* Mobile */
+
         else if (window.innerWidth < 768)
         {
             targetPosition = new Vector3(0, 14, -15);
         }
-        /* Tablet */
+
         else if (window.innerWidth >= 768 && window.innerWidth < 1024)
         {
             targetPosition = new Vector3(0, 4, -13);
         }
-        /* Desktop */
+
         else
         {
             targetPosition = new Vector3(0, 4, -13);
@@ -418,32 +415,32 @@ export function getChipsFromTokens(tokens: number): { ten: number, fifty: number
     {
         chipObject.fivehung = chipObject.fivehung + Math.floor(token / 500);
         token = token - (Math.floor(token / 500) * 500);
-        console.log(token)
+
     }
 
     if (token >= 100)
     {
         chipObject.hung = chipObject.hung + Math.floor(token / 100);
         token = token - (Math.floor(token / 100) * 100);
-        console.log(token)
+
     }
 
     if (token >= 50)
     {
         chipObject.fifty = chipObject.fifty + Math.floor(token / 50);
         token = token - (Math.floor(token / 50) * 50);
-        console.log(token)
+
     }
     if (token >= 10)
     {
         chipObject.ten = chipObject.ten + Math.floor(token / 10);
         token = token - (Math.floor(token / 10) * 10);
-        console.log(token)
+
     }
 
 
 
-    console.log(chipObject)
+
 
     return chipObject;
 }
@@ -651,5 +648,55 @@ export function createChipStacks(tokenNumbers: { [key: string]: number }, index:
                 createInstance(key, `${key}.glb`, scene, new Vector3(chipPositions[index].fivehung.xpos, chipPositions[index].fivehung.ypoz + tokenNumbers[key] / 5 - i / 10, chipPositions[index].fivehung.zpos), null);
             }
         }
+    }
+}
+
+
+
+
+export function ChangeCamera(sceneState: any, currentView: number, prevView: number)
+{
+    if (sceneState && sceneState.activeCamera)
+    {
+        const camera = sceneState.activeCamera;
+        const prevCameraPosition = camera.position.clone();
+
+        let targetPosition: Vector3;
+
+        // determine previous and target camera positions based on the current and previous views
+
+
+        switch (currentView)
+        {
+            case 1:
+                targetPosition = new Vector3(0, 12, -17);
+                break;
+            case 2:
+                targetPosition = new Vector3(0, 14, -15);
+                break;
+            case 3:
+                targetPosition = new Vector3(0, 4, -17);
+                break;
+            default:
+                targetPosition = new Vector3(0, 4, -13);
+                break;
+        }
+
+
+        // create animation
+        const animation = new Animation("cameraAnimation", "position", 30, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
+        const animationKeys = [];
+        animationKeys.push({ frame: 0, value: prevCameraPosition.clone() });
+        animationKeys.push({ frame: 30, value: targetPosition.clone() });
+        animation.setKeys(animationKeys);
+
+        // add animation to camera
+        camera.animations.push(animation);
+
+        // begin animation
+        sceneState.beginAnimation(camera, 0, 30, false, undefined, () =>
+        {
+            camera.position = targetPosition.clone();
+        });
     }
 }
